@@ -61,5 +61,9 @@
 ;; General settings
 (setq confirm-kill-emacs nil)
 
+;; Global keybinds
+(global-set-key (kbd "C-;") 'other-window)
+(global-set-key (kbd "C-:") 'previous-multiframe-window)
+
 (after! evil-escape
   (setq evil-escape-key-sequence "jh"))
