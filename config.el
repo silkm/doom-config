@@ -64,23 +64,16 @@
 ;; Global keybinds
 (global-set-key (kbd "C-;") 'other-window)
 (global-set-key (kbd "C-:") 'previous-multiframe-window)
+(global-set-key (kbd "C-c t") 'transpose-frame)
 
 (after! evil-escape
   (setq evil-escape-key-sequence "jh"))
-
-;; Swiper
-;; (use-package! swiper)
-
-;; Org-publish
-;; (use-package! ox-publish)
-
 
 ;; Winum
 (after! winum
   (setq winum-auto-setup-mode-line nil)
   :config
   (winum-mode))
-
 
 (cond ((eq system-type 'darwin)
        (map! "s-0" #'winum-select-window-0-or-10)
@@ -134,7 +127,6 @@
         inferior-R-args "--no-save")
   (map! :map ess-mode-map
         :nv "<C-return>" #'ess-eval-line-and-step))
-
 
 ;; ESS config
 ;; (add-hook! ess
