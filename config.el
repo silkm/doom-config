@@ -68,19 +68,11 @@
 (after! evil-escape
   (setq evil-escape-key-sequence "jh"))
 
-;; Swiper
-;; (use-package! swiper)
-
-;; Org-publish
-;; (use-package! ox-publish)
-
-
 ;; Winum
 (after! winum
   (setq winum-auto-setup-mode-line nil)
   :config
   (winum-mode))
-
 
 (cond ((eq system-type 'darwin)
        (map! "s-0" #'winum-select-window-0-or-10)
@@ -134,29 +126,3 @@
         inferior-R-args "--no-save")
   (map! :map ess-mode-map
         :nv "<C-return>" #'ess-eval-line-and-step))
-
-
-;; ESS config
-;; (add-hook! ess
-;;   (setq ess-indent-with-fancy-comments nil)
-;;   (setq ess-r-flymake-linters
-;; 	'("assignment_linter=NULL"
-;; 	  "closed_curly_linter=NULL"
-;; 	  "commas_linter=NULL"
-;; 	  "commented_code_linter=NULL"
-;; 	  "line_length_linter=NULL"
-;; 	  "object_usage_linter=NULL"
-;; 	  "camel_case_linter=NULL"
-;; 	  "snake_case_linter=NULL"
-;; 	  "object_name_linter=NULL"
-;; 	  "spaces_inside_linter=NULL"
-;; 	  "spaces_left_parentheses_linter=NULL"
-;; 	  ;; "trailing_blank_lines_linter=NULL"
-;; 	  ;; "trailing_whitespace_linter=NULL"
-;; 	  ))
-;;   (setq inferior-R-args "--no-save")
-;;   (setq ess-set-style 'RStudio)
-;;   (setq ess-startup-directory "/storage/data/blackhole/")
-;;   (setq ess-ask-for-ess-directory nil)
-;;   (setq ess-use-company t))
-;;   ;; (setq ess-tab-complete-in-script t))
