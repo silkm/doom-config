@@ -181,3 +181,7 @@
        :config
        ;;literate
        (default +bindings +smartparens))
+
+;; Config for things that need to
+;; be called before core things
+(setq evil-auto-indent nil)
