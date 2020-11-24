@@ -64,6 +64,7 @@
 ;; Global keybinds
 (global-set-key (kbd "C-;") 'other-window)
 (global-set-key (kbd "C-:") 'previous-multiframe-window)
+(global-set-key (kbd "C-c t") 'transpose-frame)
 
 (after! evil-escape
   (setq evil-escape-key-sequence "jh"))

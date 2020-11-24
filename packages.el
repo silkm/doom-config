@@ -50,3 +50,4 @@
 ;(unpin! t)
 
 (package! winum)
+(package! transpose-frame)
