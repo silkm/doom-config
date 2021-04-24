@@ -70,6 +70,9 @@
 (after! evil-escape
   (setq evil-escape-key-sequence "jh"))
 
+(after! org
+  (setq electric-indent-mode nil))
+
 ;; Winum
 (after! winum
   (setq winum-auto-setup-mode-line nil)
