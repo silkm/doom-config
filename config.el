@@ -71,7 +71,22 @@
   (setq evil-escape-key-sequence "jh"))
 
 (after! org
-  (setq electric-indent-mode nil))
+  (setq electric-indent-mode nil)
+  (setq org-agenda-files '("~/notebook/notes.org"))
+  (setq org-capture-templates
+        '(("j" "Journal" entry (file+olp+datetree "~/notebook/notes.org" "Journal")
+           "* %^{PROMPT}  :note:\n%u\n\n%?\n"
+           :empty-lines 1)
+          ("m" "Meeting" entry (file+olp+datetree "~/notebook/notes.org" "Journal")
+           "* Meeting: %^{PROMPT}  :meeting:\n%u\n\n%?\n"
+           :empty-lines 1)
+          ("s" "Seminar" entry (file+olp+datetree "~/notebook/notes.org" "Journal")
+           "* Seminar: %^{PROMPT}  :seminar:\n%u\n\n%?\n"
+           :empty-lines 1)
+          ("t" "Todo [Inbox]" entry (file+headline "~/notebook/notes.org" "Inbox")
+           "* TODO %i%?\n")))
+  (setq org-refile-targets '(("~/notebook/notes.org" :maxlevel . 3)))
+  (setq org-refile-allow-creating-parent-nodes 'confirm))
 
 ;; Winum
 (after! winum
@@ -131,6 +146,10 @@
         inferior-R-args "--no-save")
   (map! :map ess-mode-map
         :nv "<C-return>" #'ess-eval-line-and-step))
+
+;; Add path for LaTeX
+(setenv "PATH" (concat (getenv "PATH") ":/Library/TeX/texbin/"))
+(setq exec-path (append exec-path '("/Library/TeX/texbin/")))
 
 ;; (setq fancy-splash-image (expand-file-name "splash-images/blackhole-lines-5.svg" doom-private-dir))
 (setq fancy-splash-image "~/.doom.d/splash-images/blackhole-static.png")
