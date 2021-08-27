@@ -84,9 +84,16 @@
            "* Seminar: %^{PROMPT}  :seminar:\n%u\n\n%?\n"
            :empty-lines 1)
           ("t" "Todo [Inbox]" entry (file+headline "~/notebook/notes.org" "Inbox")
-           "* TODO %i%?\n")))
+           "* TODO %i%?\n")
+          ("l" "Maintenance Log" entry (file+headline "~/notebook/notes.org" "Maintenance")
+           "* %^{PROMPT} %^g \n%u\n\n%?\n"
+           :empty-lines 1)))
   (setq org-refile-targets '(("~/notebook/notes.org" :maxlevel . 3)))
-  (setq org-refile-allow-creating-parent-nodes 'confirm))
+  (setq org-refile-allow-creating-parent-nodes 'confirm)
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (make-local-variable 'company-idle-delay)
+              (setq company-idle-delay 999))))
 
 ;; Winum
 (after! winum
