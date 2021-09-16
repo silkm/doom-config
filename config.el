@@ -70,6 +70,24 @@
 (after! evil-escape
   (setq evil-escape-key-sequence "jh"))
 
+;; fix cursor bug
+(defun enter-insert-state-hook ()
+  (set-cursor-color "#ffffff"))
+
+(after! evil
+  (add-hook 'evil-insert-state-entry-hook 'enter-insert-state-hook)
+  (add-hook 'evil-replace-state-entry-hook 'enter-insert-state-hook))
+
+(map! :leader
+      "X" 'doom/open-scratch-buffer
+      "x" 'org-capture)
+
+;; macOS HHKB fix
+;; right option key is actually on the left
+;; set both as "meta" rather than a symbol key
+(cond ((eq system-type 'darwin)
+       (setq ns-right-alternate-modifier 'meta)))
+
 (after! org
   (setq electric-indent-mode nil)
   (setq org-agenda-files '("~/notebook/notes.org"))
