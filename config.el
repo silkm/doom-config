@@ -7,7 +7,7 @@
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets.
 (setq user-full-name "M. Silk"
-      user-mail-address "silkshake@gmail.com")
+      user-mail-address "silk.michael1@gmail.com")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
 ;; are the three important ones:
@@ -67,8 +67,8 @@
 (global-set-key (kbd "C-c t") 'transpose-frame)
 (global-set-key (kbd "C-c d") 'org-time-stamp-inactive)
 
-(after! evil-escape
-  (setq evil-escape-key-sequence "jh"))
+;; (after! evil-escape
+;;   (setq evil-escape-key-sequence "jh"))
 
 ;; fix cursor bug
 (defun enter-insert-state-hook ()
@@ -77,6 +77,7 @@
 (after! evil
   (add-hook 'evil-insert-state-entry-hook 'enter-insert-state-hook)
   (add-hook 'evil-replace-state-entry-hook 'enter-insert-state-hook))
+
 
 (map! :leader
       "X" 'doom/open-scratch-buffer
@@ -175,6 +176,8 @@
 ;; Add path for LaTeX
 (setenv "PATH" (concat (getenv "PATH") ":/Library/TeX/texbin/"))
 (setq exec-path (append exec-path '("/Library/TeX/texbin/")))
+
+(setenv "WORKON_HOME" "/Users/msilk/mambaforge/envs")
 
 ;; (setq fancy-splash-image (expand-file-name "splash-images/blackhole-lines-5.svg" doom-private-dir))
 (setq fancy-splash-image "~/.doom.d/splash-images/blackhole-static.png")
