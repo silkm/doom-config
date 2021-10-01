@@ -58,8 +58,10 @@
 ;; M. Silk
 ;; =============
 
+
 ;; General settings
 (setq confirm-kill-emacs nil)
+
 
 ;; Global keybinds
 (global-set-key (kbd "C-;") 'other-window)
@@ -67,8 +69,6 @@
 (global-set-key (kbd "C-c t") 'transpose-frame)
 (global-set-key (kbd "C-c d") 'org-time-stamp-inactive)
 
-;; (after! evil-escape
-;;   (setq evil-escape-key-sequence "jh"))
 
 ;; fix cursor bug
 (defun enter-insert-state-hook ()
@@ -83,11 +83,13 @@
       "X" 'doom/open-scratch-buffer
       "x" 'org-capture)
 
+
 ;; macOS HHKB fix
 ;; right option key is actually on the left
 ;; set both as "meta" rather than a symbol key
 (cond ((eq system-type 'darwin)
        (setq ns-right-alternate-modifier 'meta)))
+
 
 (after! org
   (setq electric-indent-mode nil)
@@ -114,7 +116,7 @@
               (make-local-variable 'company-idle-delay)
               (setq company-idle-delay 999))))
 
-;; Winum
+
 (after! winum
   (setq winum-auto-setup-mode-line nil)
   :config
@@ -163,7 +165,7 @@
              "M-7" nil
              "M-8" nil)))
 
-;; ESS config
+
 (after! ess
   :init
   (setq ess-indent-with-fancy-comments nil
@@ -177,7 +179,19 @@
 (setenv "PATH" (concat (getenv "PATH") ":/Library/TeX/texbin/"))
 (setq exec-path (append exec-path '("/Library/TeX/texbin/")))
 
-(setenv "WORKON_HOME" "/Users/msilk/mambaforge/envs")
+
+(after! conda
+  :init
+  (setq conda-anaconda-home "/Users/msilk/mambaforge"))
+
+
+(after! flycheck
+  :config
+  (add-hook 'python-mode-local-vars-hook
+            (lambda()
+              (when (flycheck-may-enable-checker 'python-flake8)
+                (flycheck-select-checker 'python-flake8)))))
+
 
 ;; (setq fancy-splash-image (expand-file-name "splash-images/blackhole-lines-5.svg" doom-private-dir))
 (setq fancy-splash-image "~/.doom.d/splash-images/blackhole-static.png")
