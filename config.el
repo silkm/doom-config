@@ -180,6 +180,15 @@
 (setq exec-path (append exec-path '("/Library/TeX/texbin/")))
 
 
+(after! smartparens
+  :init
+  (add-to-list 'sp-ignore-modes-list 'python-mode))
+
+(after! python
+  :init
+  (setq electric-pair-mode t))
+
+
 (after! conda
   :init
   (setq conda-anaconda-home "/Users/msilk/mambaforge"))
