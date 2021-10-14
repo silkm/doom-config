@@ -173,7 +173,12 @@
         ess-ask-for-ess-directory nil
         inferior-R-args "--no-save")
   (map! :map ess-mode-map
-        :nv "<C-return>" #'ess-eval-line-and-step))
+        :nv "<C-return>" #'ess-eval-line-and-step)
+  :config
+  (setq flycheck-lintr-linters
+        (concat "with_defaults(line_length_linter(120), "
+                 "object_name_linter=NULL, "
+                 "assignment_linter=NULL)")))
 
 ;; Add path for LaTeX
 (setenv "PATH" (concat (getenv "PATH") ":/Library/TeX/texbin/"))
