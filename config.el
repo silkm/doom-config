@@ -84,11 +84,23 @@
       "x" 'org-capture)
 
 
+;; Disable continuing comments
+(setq comment-line-break-function nil)
+
+
+(put 'temporary-file-directory 'standard-value
+     (list temporary-file-directory))
+
+
 ;; macOS HHKB fix
 ;; right option key is actually on the left
 ;; set both as "meta" rather than a symbol key
 (cond ((eq system-type 'darwin)
        (setq ns-right-alternate-modifier 'meta)))
+
+
+;; (when (memq window-system '(mac ns x))
+;;   (exec-path-from-shell-initialize))
 
 
 (after! org
@@ -194,13 +206,55 @@
   (setq electric-pair-mode t))
 
 
-(after! conda
+(after! pyvenv
   :init
-  (setq conda-anaconda-home "/Users/msilk/mambaforge"))
+  (setenv "WORKON_HOME" "~/miniconda3/envs"))
 
+
+;; (after! conda
+;;   :init
+;;   (setq conda-anaconda-home "/home/msilk/miniconda3")
+;;   (setq conda-env-home-directory "/home/msilk/miniconda3"))
+;; (setq +python-ipython-repl-args '("-i" "--simple-prompt" "--no-color-info"))
+
+(after! tramp
+  :init
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
+;;   (setq explicit-shell-file-name "/bin/bash"))
+
+;; (after! lsp-mode
+;;   :init
+;;   (setq lsp-python-ms-executable "/home/msilk/python-language-server/output/bin/Release/linux-x64/publish/Microsoft.Python.LanguageServer")
+;;   (lsp-register-client
+;;    (make-lsp-client :new-connection (lsp-tramp-connection "mspyls")
+;;                     :major-modes '(python-mode)
+;;                     :remote? t
+;;                     :server-id 'mspyls-remote
+;;                     :notification-handlers (lsp-ht ("python/languageServerStarted" 'lsp-python-ms--language-server-started-callback)
+;;                                                    ("telemetry/event" 'ignore)
+;;                                                    ("python/reportProgress" 'lsp-python-ms--report-progress-callback)
+;;                                                    ("python/beginProgress" 'lsp-python-ms--begin-progress-callback)
+;;                                                    ("python/endProgress" 'lsp-python-ms--end-progress-callback))
+;;                     :initialization-options 'lsp-python-ms--extra-init-params)))
+
+            ;; (lambda()
+            ;;   (require 'lsp-pyright)
+            ;;   (lsp))))
+
+;; (after! lsp-python-ms
+;;   :init
+;;   (setq lsp-python-ms-auto-install-server t)
+;;   (setq lsp-python-ms-executable "/usr/local/bin/mspyls"))
+  ;; (add-hook 'python-mode-hook
+  ;;           (lambda()
+  ;;             (require 'lsp-python-ms)
+  ;;             (lsp))))
+
+(exec-path-from-shell-initialize)
 
 (after! flycheck
   :config
+  (setq flycheck-flake8rc "~/.config/flake8")
   (add-hook 'python-mode-local-vars-hook
             (lambda()
               (when (flycheck-may-enable-checker 'python-flake8)
