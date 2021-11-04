@@ -68,6 +68,7 @@
 (global-set-key (kbd "C-:") 'previous-multiframe-window)
 (global-set-key (kbd "C-c t") 'transpose-frame)
 (global-set-key (kbd "C-c d") 'org-time-stamp-inactive)
+(global-set-key (kbd "C-c D") '(org-insert-time-stamp (current-time) t))
 
 
 ;; fix cursor bug
@@ -177,7 +178,7 @@
              "M-7" nil
              "M-8" nil)))
 
-(when (not display-graphic-p)
+(when (not (display-graphic-p))
   (map! :leader
         "0" 'winum-select-window-0-or-10
         "1" #'winum-select-window-1
@@ -262,7 +263,7 @@
   ;;             (require 'lsp-python-ms)
   ;;             (lsp))))
 
-(exec-path-from-shell-initialize)
+;; (exec-path-from-shell-initialize)
 
 (after! flycheck
   :config
