@@ -122,7 +122,9 @@
            "* TODO %i%?\n")
           ("l" "Maintenance Log" entry (file+headline "~/notebook/notes.org" "Maintenance")
            "* %^{PROMPT} %^g \n%u\n\n%?\n"
-           :empty-lines 1)))
+           :empty-lines 1)
+          ("a" "Avocado Log" entry (file+headline "~/notebook/avocado.org" "Measurements")
+           "* %U %?\n")))
   (setq org-refile-targets '(("~/notebook/notes.org" :maxlevel . 3)))
   (setq org-refile-allow-creating-parent-nodes 'confirm)
   (add-hook 'org-mode-hook
