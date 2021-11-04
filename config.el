@@ -68,6 +68,7 @@
 (global-set-key (kbd "C-:") 'previous-multiframe-window)
 (global-set-key (kbd "C-c t") 'transpose-frame)
 (global-set-key (kbd "C-c d") 'org-time-stamp-inactive)
+(global-set-key (kbd "C-c D") '(org-insert-time-stamp (current-time) t))
 
 
 ;; fix cursor bug
@@ -264,7 +265,7 @@
   ;;             (require 'lsp-python-ms)
   ;;             (lsp))))
 
-(exec-path-from-shell-initialize)
+;; (exec-path-from-shell-initialize)
 
 (after! flycheck
   :config
