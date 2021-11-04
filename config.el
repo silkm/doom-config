@@ -74,6 +74,7 @@
 (defun enter-insert-state-hook ()
   (set-cursor-color "#ffffff"))
 
+
 (after! evil
   (add-hook 'evil-insert-state-entry-hook 'enter-insert-state-hook)
   (add-hook 'evil-replace-state-entry-hook 'enter-insert-state-hook))
@@ -177,7 +178,7 @@
              "M-7" nil
              "M-8" nil)))
 
-(when (not display-graphic-p)
+(when (not (display-graphic-p))
   (map! :leader
         "0" 'winum-select-window-0-or-10
         "1" #'winum-select-window-1
@@ -187,7 +188,8 @@
         "5" #'winum-select-window-5
         "6" #'winum-select-window-6
         "7" #'winum-select-window-7
-        "8" #'winum-select-window-8))
+        "8" #'winum-select-window-8)
+  (load-theme 'doom-opera t))
 
 
 (after! ess
