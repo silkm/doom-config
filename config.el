@@ -129,7 +129,10 @@
 
 (after! org
   (setq electric-indent-mode nil)
+  (setq org-startup-folded 'content)
   (setq org-agenda-files '("~/notebook/notes.org"))
+  (map! :map org-mode-map
+        :n "C-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
   (setq org-capture-templates
         '(("j" "Journal" entry (file+olp+datetree "~/notebook/notes.org" "Journal")
            "* %^{PROMPT}  :note:\n%u\n\n%?\n"
