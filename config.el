@@ -130,7 +130,8 @@
 (after! org
   (setq electric-indent-mode nil)
   (setq org-startup-folded 'content)
-  (setq org-agenda-files '("~/notebook/notes.org"))
+  (setq org-agenda-files '("~/notebook/notes.org"
+                           "~/notebook/fordham.org"))
   (map! :map org-mode-map
         :n "C-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
   (setq org-capture-templates
