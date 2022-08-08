@@ -130,6 +130,7 @@
 (after! org
   (setq electric-indent-mode nil)
   (setq org-startup-folded 'content)
+  (setq org-tags-column -77)
   (setq org-agenda-files '("~/notebook/notes.org"
                            "~/notebook/fordham.org"))
   (map! :map org-mode-map
