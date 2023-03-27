@@ -155,7 +155,8 @@
   (add-hook 'org-mode-hook
             (lambda ()
               (make-local-variable 'company-idle-delay)
-              (setq company-idle-delay 999)))
+              (setq company-idle-delay 999)
+              (display-line-numbers-mode -1)))
   (add-to-list 'org-src-lang-modes (cons "jsx" 'rjsx-mode)))
 
 
@@ -330,7 +331,7 @@
 
 
 ;; (setq fancy-splash-image (expand-file-name "splash-images/blackhole-lines-5.svg" doom-private-dir))
-(setq fancy-splash-image "~/.doom.d/splash-images/blackhole-static.png")
+(setq fancy-splash-image "~/.config/doom/splash-images/blackhole-lines.svg")
 
 ;; ;; Black hole splash image
 ;; (defvar fancy-splash-image-template
