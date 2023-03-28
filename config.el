@@ -291,6 +291,10 @@
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 ;;   (setq explicit-shell-file-name "/bin/bash"))
 
+(after! lsp-mode
+  :init
+  (setq lsp-pylsp-plugins-pylint-enabled t))
+
 ;; (after! lsp-mode
 ;;   :init
 ;;   (setq lsp-python-ms-executable "/home/msilk/python-language-server/output/bin/Release/linux-x64/publish/Microsoft.Python.LanguageServer")
@@ -321,17 +325,26 @@
 
 ;; (exec-path-from-shell-initialize)
 
-(after! flycheck
-  :config
-  (setq flycheck-flake8rc "~/.config/flake8")
-  (add-hook 'python-mode-local-vars-hook
-            (lambda()
-              (when (flycheck-may-enable-checker 'python-flake8)
-                (flycheck-select-checker 'python-flake8)))))
+;; (after! flycheck
+;;   :config
+;;   (add-hook 'python-mode-local-vars-hook
+;;             (lambda()
+;;               (when (flycheck-may-enable-checker 'python-pylint)
+;;                 (flycheck-select-checker 'python-pylint))
+;;               (when (flycheck-may-enable-checker 'python-mypy)
+;;                 (flycheck-select-checker flycheck-)))))
+
+;; (after! flycheck
+;;   :config
+;;   (setq flycheck-flake8rc "~/.config/flake8")
+;;   (add-hook 'python-mode-local-vars-hook
+;;             (lambda()
+;;               (when (flycheck-may-enable-checker 'python-flake8)
+;;                 (flycheck-select-checker 'python-flake8)))))
 
 
 ;; (setq fancy-splash-image (expand-file-name "splash-images/blackhole-lines-5.svg" doom-private-dir))
-(setq fancy-splash-image "~/.config/doom/splash-images/blackhole-lines.svg")
+(setq fancy-splash-image "~/.doom.d/splash-images/blackhole-lines.svg")
 
 ;; ;; Black hole splash image
 ;; (defvar fancy-splash-image-template
