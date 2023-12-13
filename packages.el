@@ -61,5 +61,7 @@
 ;;   :recipe (:host github :repo "magit/git-modes"
 ;;            :files ("gitignore-mode.el")))
 
-(package! ox-ipynb
-  :recipe (:host github :repo "jkitchin/ox-ipynb"))
+;; (package! ox-ipynb
+;;   :recipe (:host github :repo "jkitchin/ox-ipynb"))
+
+;; (package! all-the-icons :disable t)

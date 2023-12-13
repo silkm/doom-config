@@ -32,7 +32,8 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-one)
+;; (setq doom-theme 'doom-one)
+(setq doom-theme 'doom-horizon)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -132,7 +133,8 @@
   (setq org-startup-folded 'content)
   (setq org-tags-column -77)
   (setq org-agenda-files '("~/notebook/notes.org"
-                           "~/notebook/fordham.org"))
+                           "~/notebook/fordham.org"
+                           "~/notebook/baby.org"))
   (map! :map org-mode-map
         :n "C-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
   (setq org-capture-templates
@@ -161,7 +163,7 @@
 
 
 
-(use-package! ox-ipynb)
+;; (use-package! ox-ipynb)
 
 (after! winum
   (setq winum-auto-setup-mode-line nil)
@@ -227,13 +229,16 @@
 
 (after! ess
   :init
+  ;; Fix R:ESS comments going grey and unreadable
+  (setq-local ansi-color-for-comint-mode 'filter)
   (setq ess-indent-with-fancy-comments nil
         ess-style 'RStudio
         ess-ask-for-ess-directory nil
         ess-history-directory "~/.cache"
         inferior-R-args "--no-save")
   (map! :map ess-mode-map
-        :nv "<C-return>" #'ess-eval-line-and-step)
+        :nv "<C-return>" #'ess-eval-line-and-step
+        :n "C-c m" #'ess-reset-ansi-colours)
   :config
   (setq flycheck-lintr-linters
         (concat "with_defaults(line_length_linter(120), "
@@ -258,7 +263,10 @@
                   "T_and_F_symbol_linter, "
                   "undesirable_function_linter, "
                   "undesirable_operator_linter, "
-                  "unneeded_concatenation_linter)"))))
+                  "unneeded_concatenation_linter)")))
+  (defun ess-reset-ansi-colours ()
+    (interactive)
+    (setq-local ansi-color-for-comint-mode 'filter)))
 
 
 ;; Add path for LaTeX
@@ -310,18 +318,18 @@
 ;;                                                    ("python/endProgress" 'lsp-python-ms--end-progress-callback))
 ;;                     :initialization-options 'lsp-python-ms--extra-init-params)))
 
-            ;; (lambda()
-            ;;   (require 'lsp-pyright)
-            ;;   (lsp))))
+;; (lambda()
+;;   (require 'lsp-pyright)
+;;   (lsp))))
 
 ;; (after! lsp-python-ms
 ;;   :init
 ;;   (setq lsp-python-ms-auto-install-server t)
 ;;   (setq lsp-python-ms-executable "/usr/local/bin/mspyls"))
-  ;; (add-hook 'python-mode-hook
-  ;;           (lambda()
-  ;;             (require 'lsp-python-ms)
-  ;;             (lsp))))
+;; (add-hook 'python-mode-hook
+;;           (lambda()
+;;             (require 'lsp-python-ms)
+;;             (lsp))))
 
 ;; (exec-path-from-shell-initialize)
 
@@ -343,26 +351,25 @@
 ;;                 (flycheck-select-checker 'python-flake8)))))
 
 
-;; (setq fancy-splash-image (expand-file-name "splash-images/blackhole-lines-5.svg" doom-private-dir))
-(setq fancy-splash-image "~/.doom.d/splash-images/blackhole-lines.svg")
+(setq fancy-splash-image (expand-file-name "splash-images/blackhole-lines-small.svg" doom-user-dir))
 
 ;; ;; Black hole splash image
 ;; (defvar fancy-splash-image-template
-;;   (expand-file-name "splash-images/blackhole-lines-template.svg" doom-private-dir)
+;;   (expand-file-name "splash-images/blackhole-lines-template.svg" doom-user-dir)
 ;;   "Default template svg used for the splash image, with substitutions from ")
 ;; (defvar fancy-splash-image-nil
-;;   (expand-file-name "splash-images/transparent-pixel.png" doom-private-dir)
+;;   (expand-file-name "splash-images/transparent-pixel.png" doom-user-dir)
 ;;   "An image to use at minimum size, usually a transparent pixel")
 
 ;; (setq fancy-splash-sizes
-;;       `((:height 500 :min-height 50 :padding (0 . 4) :template ,(expand-file-name "splash-images/blackhole-lines-0.svg" doom-private-dir))
-;;         (:height 440 :min-height 42 :padding (1 . 4) :template ,(expand-file-name "splash-images/blackhole-lines-0.svg" doom-private-dir))
-;;         (:height 400 :min-height 38 :padding (1 . 4) :template ,(expand-file-name "splash-images/blackhole-lines-1.svg" doom-private-dir))
-;;         (:height 350 :min-height 36 :padding (1 . 3) :template ,(expand-file-name "splash-images/blackhole-lines-2.svg" doom-private-dir))
-;;         (:height 300 :min-height 34 :padding (1 . 3) :template ,(expand-file-name "splash-images/blackhole-lines-3.svg" doom-private-dir))
-;;         (:height 250 :min-height 32 :padding (1 . 2) :template ,(expand-file-name "splash-images/blackhole-lines-4.svg" doom-private-dir))
-;;         (:height 200 :min-height 30 :padding (1 . 2) :template ,(expand-file-name "splash-images/blackhole-lines-5.svg" doom-private-dir))
-;;         (:height 100 :min-height 24 :padding (1 . 2) :template ,(expand-file-name "splash-images/emacs-e-template.svg" doom-private-dir))
+;;       `((:height 500 :min-height 50 :padding (0 . 4) :template ,(expand-file-name "splash-images/blackhole-lines-0.svg" doom-user-dir))
+;;         (:height 440 :min-height 42 :padding (1 . 4) :template ,(expand-file-name "splash-images/blackhole-lines-0.svg" doom-user-dir))
+;;         (:height 400 :min-height 38 :padding (1 . 4) :template ,(expand-file-name "splash-images/blackhole-lines-1.svg" doom-user-dir))
+;;         (:height 350 :min-height 36 :padding (1 . 3) :template ,(expand-file-name "splash-images/blackhole-lines-2.svg" doom-user-dir))
+;;         (:height 300 :min-height 34 :padding (1 . 3) :template ,(expand-file-name "splash-images/blackhole-lines-3.svg" doom-user-dir))
+;;         (:height 250 :min-height 32 :padding (1 . 2) :template ,(expand-file-name "splash-images/blackhole-lines-4.svg" doom-user-dir))
+;;         (:height 200 :min-height 30 :padding (1 . 2) :template ,(expand-file-name "splash-images/blackhole-lines-5.svg" doom-user-dir))
+;;         (:height 100 :min-height 24 :padding (1 . 2) :template ,(expand-file-name "splash-images/emacs-e-template.svg" doom-user-dir))
 ;;         (:height 0   :min-height 0  :padding (0 . 0) :file ,fancy-splash-image-nil)))
 
 ;; (defvar fancy-splash-sizes
