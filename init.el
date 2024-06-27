@@ -47,7 +47,7 @@
        ;;treemacs          ; a project drawer, like neotree but cooler
        ;;unicode           ; extended unicode support for various languages
        (vc-gutter +pretty) ; vcs diff in the fringe
-       vi-tilde-fringe   ; fringe tildes to mark beyond EOB
+       ;;vi-tilde-fringe   ; fringe tildes to mark beyond EOB
        ;;window-select     ; visually switch windows
        workspaces        ; tab emulation, persistence & separate workspaces
        ;;zen               ; distraction-free coding or writing
@@ -92,7 +92,7 @@
        ;;direnv
        ;;docker
        ;;editorconfig      ; let someone else argue about tabs vs spaces
-       ;;ein               ; tame Jupyter notebooks with emacs
+       ein               ; tame Jupyter notebooks with emacs
        (eval +overlay)     ; run code, run (also, repls)
        ;;gist              ; interacting with github gists
        lookup              ; navigate your code and its documentation
@@ -197,3 +197,7 @@
 ;; Config for things that need to
 ;; be called before core things
 (setq evil-auto-indent nil)
+
+;; Window size
+(setq initial-frame-alist
+      '((top . 1) (left . 1) (width . 80) (height . 55)))
