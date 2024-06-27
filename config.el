@@ -33,7 +33,8 @@
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 ;; (setq doom-theme 'doom-one)
-(setq doom-theme 'doom-horizon)
+;; (setq doom-theme 'doom-horizon)
+(setq doom-theme 'doom-dracula)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -124,6 +125,7 @@
        (setq ns-right-alternate-modifier 'meta)))
 
 
+;; Use shell environment variables on Mac
 ;; (when (memq window-system '(mac ns x))
 ;;   (exec-path-from-shell-initialize))
 
@@ -147,7 +149,7 @@
           ("s" "Seminar" entry (file+olp+datetree "~/notebook/notes.org" "Journal")
            "* Seminar: %^{PROMPT}  :seminar:\n%u\n\n%?\n"
            :empty-lines 1)
-          ("t" "Todo [Inbox]" entry (file+headline "~/notebook/notes.org" "Inbox")
+          ("t" "Task" entry (file "~/notebook/tasks.org")
            "* TODO %i%?\n")
           ("l" "Maintenance Log" entry (file+headline "~/notebook/notes.org" "Maintenance")
            "* %^{PROMPT} %^g \n%u\n\n%?\n"
@@ -280,12 +282,19 @@
 
 (after! python
   :init
-  (setq electric-pair-mode t))
+  (setq electric-pair-mode t)
+  (setq python-shell-completion-native-enable nil))
 
-
-(after! pyvenv
+(after! apheleia
   :init
-  (setenv "WORKON_HOME" "~/miniconda3/envs"))
+  (setf (alist-get 'isort apheleia-formatters)
+        '("isort" "--stdout" "-"))
+  (setf (alist-get 'python-mode apheleia-mode-alist)
+        '(isort black)))
+
+;; (after! pyvenv
+;;   :init
+;;   (setenv "WORKON_HOME" "~/miniconda3/envs"))
 
 
 ;; (after! conda
@@ -302,6 +311,7 @@
 (after! lsp-mode
   :init
   (setq lsp-pylsp-plugins-pylint-enabled t))
+
 
 ;; (after! lsp-mode
 ;;   :init
