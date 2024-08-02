@@ -111,7 +111,7 @@
 
 
 ;; Disable continuing comments
-(setq comment-line-break-function nil)
+;; (setq comment-line-break-function nil)
 
 
 (put 'temporary-file-directory 'standard-value
@@ -137,6 +137,7 @@
   (setq org-agenda-files '("~/notebook/notes.org"
                            "~/notebook/fordham.org"
                            "~/notebook/baby.org"))
+  (setq org-image-actual-width 300)
   (map! :map org-mode-map
         :n "C-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
   (setq org-capture-templates
@@ -162,6 +163,14 @@
               (setq company-idle-delay 999)
               (display-line-numbers-mode -1)))
   (add-to-list 'org-src-lang-modes (cons "jsx" 'rjsx-mode)))
+
+
+(after! org-download
+  :init
+  (setq org-download-method 'download)
+  (setq org-download-heading-lvl nil)
+  (setq org-download-image-dir "~/notebook/img/")
+  (setq org-download-link-format "[[~/notebook/img/%s]]\n"))
 
 
 
@@ -276,90 +285,46 @@
 (setq exec-path (append exec-path '("/Library/TeX/texbin/")))
 
 
-;; Disable smart parens in python (no longer needed)
-;; Previously used electric-pair-mode instead due to a bug.
-;; (after! smartparens
-;;   :init
-;;   (add-to-list 'sp-ignore-modes-list 'python-mode))
-
 (after! python
   :config
-  ;; (setq electric-pair-mode t) ;; See above, back to smartparens
-  (setq python-shell-completion-native-enable nil)
   (map! :map python-mode-map
         :n "C-c C-w" #'(lambda () (interactive) (python-shell-send-buffer t))))
 
 
 (after! apheleia
   :init
-  (setf (alist-get 'isort apheleia-formatters)
-        '("isort" "--stdout" "-"))
   (setf (alist-get 'python-mode apheleia-mode-alist)
-        '(isort black)))
+        '(ruff-isort ruff))
+  (setf (alist-get 'python-ts-mode apheleia-mode-alist)
+        '(ruff-isort ruff)))
 
-
-;; (after! conda
-;;   :init
-;;   (setq conda-anaconda-home "/home/msilk/miniconda3")
-;;   (setq conda-env-home-directory "/home/msilk/miniconda3"))
-;; (setq +python-ipython-repl-args '("-i" "--simple-prompt" "--no-color-info"))
 
 (after! tramp
   :init
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
-;;   (setq explicit-shell-file-name "/bin/bash"))
 
 (after! lsp-mode
   :init
-  (setq lsp-pylsp-plugins-pylint-enabled t))
+  (setq lsp-pylsp-plugins-pylint-enabled t)
+  (setq lsp-pylsp-plugins-flake8-enabled nil)
+  (setq lsp-pylsp-plugins-mypy-live-mode t)
+  (setq lsp-pylsp-plugins-jedi-completion-fuzzy t)
+  (setq lsp-pylsp-plugins-jedi-completion-enabled t)
+  (setq lsp-pylsp-plugins-pycodestyle-enabled nil)
+  (setq lsp-pylsp-plugins-pydocstyle-enabled nil)
+  (setq lsp-pylsp-plugins-pyflakes-enabled nil)
+  (setq lsp-pylsp-plugins-mccabe-enabled t))
 
 
-;; (after! lsp-mode
-;;   :init
-;;   (setq lsp-python-ms-executable "/home/msilk/python-language-server/output/bin/Release/linux-x64/publish/Microsoft.Python.LanguageServer")
-;;   (lsp-register-client
-;;    (make-lsp-client :new-connection (lsp-tramp-connection "mspyls")
-;;                     :major-modes '(python-mode)
-;;                     :remote? t
-;;                     :server-id 'mspyls-remote
-;;                     :notification-handlers (lsp-ht ("python/languageServerStarted" 'lsp-python-ms--language-server-started-callback)
-;;                                                    ("telemetry/event" 'ignore)
-;;                                                    ("python/reportProgress" 'lsp-python-ms--report-progress-callback)
-;;                                                    ("python/beginProgress" 'lsp-python-ms--begin-progress-callback)
-;;                                                    ("python/endProgress" 'lsp-python-ms--end-progress-callback))
-;;                     :initialization-options 'lsp-python-ms--extra-init-params)))
+(after! dap-mode
+  (setq dap-python-debugger 'debugpy))
 
-;; (lambda()
-;;   (require 'lsp-pyright)
-;;   (lsp))))
 
-;; (after! lsp-python-ms
-;;   :init
-;;   (setq lsp-python-ms-auto-install-server t)
-;;   (setq lsp-python-ms-executable "/usr/local/bin/mspyls"))
-;; (add-hook 'python-mode-hook
-;;           (lambda()
-;;             (require 'lsp-python-ms)
-;;             (lsp))))
-
-;; (exec-path-from-shell-initialize)
-
-;; (after! flycheck
-;;   :config
-;;   (add-hook 'python-mode-local-vars-hook
-;;             (lambda()
-;;               (when (flycheck-may-enable-checker 'python-pylint)
-;;                 (flycheck-select-checker 'python-pylint))
-;;               (when (flycheck-may-enable-checker 'python-mypy)
-;;                 (flycheck-select-checker flycheck-)))))
-
-;; (after! flycheck
-;;   :config
-;;   (setq flycheck-flake8rc "~/.config/flake8")
-;;   (add-hook 'python-mode-local-vars-hook
-;;             (lambda()
-;;               (when (flycheck-may-enable-checker 'python-flake8)
-;;                 (flycheck-select-checker 'python-flake8)))))
+(after! copilot
+  :init
+  (map! :map copilot-mode-map
+        :i "<tab>" #'copilot-accept-completion
+        :i "C-<tab>" #'copilot-accept-completion-by-word))
 
 
 (setq fancy-splash-image (expand-file-name "splash-images/blackhole-lines-small.svg" doom-user-dir))
