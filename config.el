@@ -173,9 +173,6 @@
   (setq org-download-link-format "[[~/notebook/img/%s]]\n"))
 
 
-
-;; (use-package! ox-ipynb)
-
 (after! winum
   (setq winum-auto-setup-mode-line nil)
   :config
@@ -302,6 +299,7 @@
 (after! tramp
   :init
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
+
 
 (after! lsp-mode
   :init
