@@ -49,6 +49,7 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
                                         ;(unpin! t)
 
+(package! grip-mode)
 (package! winum)
 (package! transpose-frame)
 (package! exec-path-from-shell)

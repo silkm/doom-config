@@ -32,9 +32,9 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-;; (setq doom-theme 'doom-one)
+(setq doom-theme 'doom-one)
 ;; (setq doom-theme 'doom-horizon)
-(setq doom-theme 'doom-dracula)
+;; (setq doom-theme 'doom-dracula)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -326,8 +326,8 @@
 (after! copilot
   :init
   (map! :map copilot-mode-map
-        :i "<tab>" #'copilot-accept-completion
-        :i "C-<tab>" #'copilot-accept-completion-by-word))
+        :i "C-<tab>" #'copilot-accept-completion
+        :i "C-S-<tab>" #'copilot-accept-completion-by-word))
 
 
 (setq fancy-splash-image (expand-file-name "splash-images/blackhole-lines-small.svg" doom-user-dir))
