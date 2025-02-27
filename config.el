@@ -248,7 +248,7 @@
   (setq-local ansi-color-for-comint-mode 'filter)
   (setq ess-indent-with-fancy-comments nil
         ess-style 'RStudio
-        ess-ask-for-ess-directory nil
+        ;; ess-ask-for-ess-directory nil
         ess-history-directory "~/.cache"
         inferior-R-args "--no-save")
   (map! :map ess-mode-map
