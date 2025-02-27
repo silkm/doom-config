@@ -95,6 +95,13 @@
 (global-set-key (kbd "C-c D") '(org-insert-time-stamp (current-time) t))
 
 
+;; Disable arrow keys
+(global-unset-key (kbd "<left>"))
+(global-unset-key (kbd "<right>"))
+(global-unset-key (kbd "<up>"))
+(global-unset-key (kbd "<down>"))
+
+
 ;; fix cursor bug
 (defun enter-insert-state-hook ()
   (set-cursor-color "#ffffff"))
