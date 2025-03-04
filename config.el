@@ -5,7 +5,7 @@
 
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
-;; clients, file templates and snippets.
+;; clients, file templates and snippets. It is optional.
 (setq user-full-name "M. Silk"
       user-mail-address "silk.michael1@gmail.com")
 
@@ -15,7 +15,7 @@
 ;; - `doom-variable-pitch-font' -- a non-monospace font (where applicable)
 ;; - `doom-big-font' -- used for `doom-big-font-mode'; use this for
 ;;   presentations or streaming.
-;; - `doom-unicode-font' -- for unicode glyphs
+;; - `doom-symbol-font' -- for symbols
 ;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
 ;;
 ;; See 'C-h v doom-font' for documentation and more examples of what they
@@ -33,8 +33,6 @@
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-one)
-;; (setq doom-theme 'doom-horizon)
-;; (setq doom-theme 'doom-dracula)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -95,50 +93,22 @@
 (global-set-key (kbd "C-c D") '(org-insert-time-stamp (current-time) t))
 
 
-;; Disable arrow keys
-(global-unset-key (kbd "<left>"))
-(global-unset-key (kbd "<right>"))
-(global-unset-key (kbd "<up>"))
-(global-unset-key (kbd "<down>"))
-
-
-;; fix cursor bug
-(defun enter-insert-state-hook ()
-  (set-cursor-color "#ffffff"))
-
-
-(after! evil
-  (add-hook 'evil-insert-state-entry-hook 'enter-insert-state-hook)
-  (add-hook 'evil-replace-state-entry-hook 'enter-insert-state-hook))
-
-
+;; Swap doom capture and scratch bindings
 (map! :leader
       "X" 'doom/open-scratch-buffer
       "x" 'org-capture)
 
 
-;; Disable continuing comments
-;; (setq comment-line-break-function nil)
-
-
-(put 'temporary-file-directory 'standard-value
-     (list temporary-file-directory))
-
-
-;; macOS HHKB fix
-;; right option key is actually on the left
-;; set both as "meta" rather than a symbol key
-(cond ((eq system-type 'darwin)
-       (setq ns-right-alternate-modifier 'meta)))
-
-
-;; Use shell environment variables on Mac
-;; (when (memq window-system '(mac ns x))
-;;   (exec-path-from-shell-initialize))
+;; ;; fix cursor bug
+;; (defun enter-insert-state-hook ()
+;;   (set-cursor-color "#ffffff"))
+;; (after! evil
+;;   (add-hook 'evil-insert-state-entry-hook 'enter-insert-state-hook)
+;;   (add-hook 'evil-replace-state-entry-hook 'enter-insert-state-hook))
 
 
 (after! org
-  (setq electric-indent-mode nil)
+  ;; (setq electric-indent-mode nil)
   (setq org-startup-folded 'content)
   (setq org-tags-column -77)
   (setq org-agenda-files '("~/notebook/notes.org"
@@ -166,14 +136,12 @@
   (setq org-refile-allow-creating-parent-nodes 'confirm)
   (add-hook 'org-mode-hook
             (lambda ()
-              (make-local-variable 'company-idle-delay)
-              (setq company-idle-delay 999)
-              (display-line-numbers-mode -1)))
-  (add-to-list 'org-src-lang-modes (cons "jsx" 'rjsx-mode)))
+              ;; (make-local-variable 'company-idle-delay)
+              ;; (setq company-idle-delay 999)
+              (display-line-numbers-mode -1))))
 
 
 (after! org-download
-  :init
   (setq org-download-method 'download)
   (setq org-download-heading-lvl nil)
   (setq org-download-image-dir "~/notebook/img/")
@@ -184,6 +152,7 @@
   (setq winum-auto-setup-mode-line nil)
   :config
   (winum-mode))
+
 
 (cond ((eq system-type 'darwin)
        (map! "s-0" #'winum-select-window-0-or-10)
@@ -243,50 +212,50 @@
 
 
 (after! ess
-  :init
+  :defer
   ;; Fix R:ESS comments going grey and unreadable
-  (setq-local ansi-color-for-comint-mode 'filter)
+  ;; (setq-local ansi-color-for-comint-mode 'filter)
   (setq ess-indent-with-fancy-comments nil
         ess-style 'RStudio
         ;; ess-ask-for-ess-directory nil
-        ess-history-directory "~/.cache"
+        ;; ess-history-directory "~/.cache"
         inferior-R-args "--no-save")
   (map! :map ess-mode-map
         :nv "<C-return>" #'ess-eval-line-and-step
         :n "C-c m" #'ess-reset-ansi-colours)
   :config
-  (setq flycheck-lintr-linters
-        (concat "with_defaults(line_length_linter(120), "
-                "object_usage_linter=NULL)"))
-  (defun flycheck-custom-simple-linters ()
-    (interactive)
-    (setq flycheck-lintr-linters
-          (concat "with_defaults(line_length_linter(120), "
-                  "object_usage_linter=NULL)")))
-  (defun flycheck-custom-strict-linters ()
-    (interactive)
-    (setq flycheck-lintr-linters
-          (concat "with_defaults(line_length_linter(120), "
-                  "absolute_path_linter, "
-                  "nonportable_path_linter, "
-                  "camel_case_linter, "
-                  "extraction_operator_linter, "
-                  "implicit_integer_linter, "
-                  "paren_brace_linter, "
-                  "semicolon_terminator_linter, "
-                  "todo_comment_linter, "
-                  "T_and_F_symbol_linter, "
-                  "undesirable_function_linter, "
-                  "undesirable_operator_linter, "
-                  "unneeded_concatenation_linter)")))
+  ;; (setq flycheck-lintr-linters
+  ;;       (concat "with_defaults(line_length_linter(120), "
+  ;;               "object_usage_linter=NULL)"))
+  ;; (defun flycheck-custom-simple-linters ()
+  ;;   (interactive)
+  ;;   (setq flycheck-lintr-linters
+  ;;         (concat "with_defaults(line_length_linter(120), "
+  ;;                 "object_usage_linter=NULL)")))
+  ;; (defun flycheck-custom-strict-linters ()
+  ;;   (interactive)
+  ;;   (setq flycheck-lintr-linters
+  ;;         (concat "with_defaults(line_length_linter(120), "
+  ;;                 "absolute_path_linter, "
+  ;;                 "nonportable_path_linter, "
+  ;;                 "camel_case_linter, "
+  ;;                 "extraction_operator_linter, "
+  ;;                 "implicit_integer_linter, "
+  ;;                 "paren_brace_linter, "
+  ;;                 "semicolon_terminator_linter, "
+  ;;                 "todo_comment_linter, "
+  ;;                 "T_and_F_symbol_linter, "
+  ;;                 "undesirable_function_linter, "
+  ;;                 "undesirable_operator_linter, "
+  ;;                 "unneeded_concatenation_linter)")))
   (defun ess-reset-ansi-colours ()
     (interactive)
     (setq-local ansi-color-for-comint-mode 'filter)))
 
 
 ;; Add path for LaTeX
-(setenv "PATH" (concat (getenv "PATH") ":/Library/TeX/texbin/"))
-(setq exec-path (append exec-path '("/Library/TeX/texbin/")))
+;; (setenv "PATH" (concat (getenv "PATH") ":/Library/TeX/texbin/"))
+;; (setq exec-path (append exec-path '("/Library/TeX/texbin/")))
 
 
 (after! python
@@ -308,57 +277,115 @@
         '(ruff-isort ruff)))
 
 
-(after! tramp
-  :init
-  (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
+;; (after! tramp
+;;   :init
+;;   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 
 
-(after! lsp-mode
-  :init
-  (setq lsp-pylsp-plugins-pylint-enabled t)
-  (setq lsp-pylsp-plugins-flake8-enabled nil)
-  (setq lsp-pylsp-plugins-mypy-live-mode t)
-  (setq lsp-pylsp-plugins-jedi-completion-fuzzy t)
-  (setq lsp-pylsp-plugins-jedi-completion-enabled t)
-  (setq lsp-pylsp-plugins-pycodestyle-enabled nil)
-  (setq lsp-pylsp-plugins-pydocstyle-enabled nil)
-  (setq lsp-pylsp-plugins-pyflakes-enabled nil)
-  (setq lsp-pylsp-plugins-mccabe-enabled t))
+;; EGLOT + PYLSP + RUFF
+;; this gives the speed boosts of ruff, which replaces
+;; autopep8, flake8, pyflakes, pylint, mccabe, at the cost
+;; of using flymake instead of flycheck (as flymake uses ruff).
+;; Aside from the ugly error popups flymake gives, it's really
+;; good!
+(after! eglot
+  (add-to-list 'eglot-server-programs
+               ;;'(python-mode . ("ruff" "server"))))
+               '(python-mode . ("pylsp")))
+  (setq-default eglot-workspace-configuration
+                '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t)
+                                    :rope (:enabled t)
+                                    :pylsp_mypy (:enabled t)
+                                    :autopep8 (:enabled :json-false)
+                                    :pyflakes (:enabled :json-false)
+                                    :pylint (:enabled :json-false)
+                                    :mccabe (:enabled :json-false)
+                                    :flake8 (:enabled :json-false)
+                                    :pydocstyle (:enabled t)
+                                    :pycodestyle (:enabled :json-false)
+                                    )))))
+;; (after! eglot
+;;   (add-to-list 'eglot-server-programs
+;;                ;;'(python-mode . ("ruff" "server"))))
+;;                '(python-mode . ("pylsp")))
+;;   (setq eglot-workspace-configuration
+;;         '(:pylsp (:plugins (:jedi_completion (:include_params t
+;;                                               :fuzzy t)
 
 
-(after! dap-mode
-  :init
-  (setq dap-python-debugger 'debugpy)
-  (map! :map dap-mode-map
-        :leader
-        :prefix ("d" . "dap")
-        ;; basics
-        :desc "dap next"          "n" #'dap-next
-        :desc "dap step in"       "i" #'dap-step-in
-        :desc "dap step out"      "o" #'dap-step-out
-        :desc "dap continue"      "c" #'dap-continue
-        :desc "dap hydra"         "h" #'dap-hydra
-        :desc "dap debug restart" "r" #'dap-debug-restart
-        :desc "dap debug"         "s" #'dap-debug
 
-        ;; debug
-        :prefix ("dd" . "Debug")
-        :desc "dap debug recent"  "r" #'dap-debug-recent
-        :desc "dap debug last"    "l" #'dap-debug-last
 
-        ;; eval
-        :prefix ("de" . "Eval")
-        :desc "eval"                "e" #'dap-eval
-        :desc "eval region"         "r" #'dap-eval-region
-        :desc "eval thing at point" "s" #'dap-eval-thing-at-point
-        :desc "add expression"      "a" #'dap-ui-expressions-add
-        :desc "remove expression"   "d" #'dap-ui-expressions-remove
 
-        :prefix ("db" . "Breakpoint")
-        :desc "dap breakpoint toggle"      "b" #'dap-breakpoint-toggle
-        :desc "dap breakpoint condition"   "c" #'dap-breakpoint-condition
-        :desc "dap breakpoint hit count"   "h" #'dap-breakpoint-hit-condition
-        :desc "dap breakpoint log message" "l" #'dap-breakpoint-log-message))
+;;                                              :autopep8 (:enabled nil)
+;;                                              :pyflakes (:enabled nil)
+;;                                              :pylint (:enabled nil)
+;;                                              :mccabe (:enabled nil)
+;;                                              :flake8 (:enabled nil)
+;;                                              :pydocstyle (:enabled t)
+;;                                              :pycodestyle (:enabled nil)
+;;                                              :pylsp-rope (:enabled t)
+;;                                              :pylsp-mypy (:enabled :json-false)
+;;                                              )))))
+
+
+(after! flymake
+  (setq python-flymake-command
+        '("ruff" "--quiet" "check"
+          "--preview" ; enables beta checks
+          "--line-length=100"
+          ;;,@(flatten-list (mapcar (lambda (code) (list "--select" code))
+          ;;                        '("E" "W"))) ;codes to select
+          "--output-format=pylint"
+          "--stdin-filename=stdin" "-")))
+
+;; (after! lsp-mode
+;;   :init
+;;   (setq lsp-pylsp-plugins-pylint-enabled t)
+;;   (setq lsp-pylsp-plugins-flake8-enabled nil)
+;;   (setq lsp-pylsp-plugins-mypy-live-mode t)
+;;   (setq lsp-pylsp-plugins-jedi-completion-fuzzy t)
+;;   (setq lsp-pylsp-plugins-jedi-completion-enabled t)
+;;   (setq lsp-pylsp-plugins-pycodestyle-enabled nil)
+;;   (setq lsp-pylsp-plugins-pydocstyle-enabled nil)
+;;   (setq lsp-pylsp-plugins-pyflakes-enabled nil)
+;;   (setq lsp-pylsp-plugins-mccabe-enabled t))
+
+
+;; NOT compatible with eglot
+;; (after! dap-mode
+;;   :init
+;;   (setq dap-python-debugger 'debugpy)
+;;   (setq dap-auto-configure-features '(locals breakpoints tooltip))
+;;   (map! :map dap-mode-map
+;;         :leader
+;;         :prefix ("d" . "dap")
+;;         ;; basics
+;;         :desc "dap next"          "n" #'dap-next
+;;         :desc "dap step in"       "i" #'dap-step-in
+;;         :desc "dap step out"      "o" #'dap-step-out
+;;         :desc "dap continue"      "c" #'dap-continue
+;;         :desc "dap hydra"         "h" #'dap-hydra
+;;         :desc "dap debug restart" "r" #'dap-debug-restart
+;;         :desc "dap debug"         "s" #'dap-debug
+
+;;         ;; debug
+;;         :prefix ("dd" . "Debug")
+;;         :desc "dap debug recent"  "r" #'dap-debug-recent
+;;         :desc "dap debug last"    "l" #'dap-debug-last
+
+;;         ;; eval
+;;         :prefix ("de" . "Eval")
+;;         :desc "eval"                "e" #'dap-eval
+;;         :desc "eval region"         "r" #'dap-eval-region
+;;         :desc "eval thing at point" "s" #'dap-eval-thing-at-point
+;;         :desc "add expression"      "a" #'dap-ui-expressions-add
+;;         :desc "remove expression"   "d" #'dap-ui-expressions-remove
+
+;;         :prefix ("db" . "Breakpoint")
+;;         :desc "dap breakpoint toggle"      "b" #'dap-breakpoint-toggle
+;;         :desc "dap breakpoint condition"   "c" #'dap-breakpoint-condition
+;;         :desc "dap breakpoint hit count"   "h" #'dap-breakpoint-hit-condition
+;;         :desc "dap breakpoint log message" "l" #'dap-breakpoint-log-message))
 
 
 (after! copilot
