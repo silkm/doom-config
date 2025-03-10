@@ -108,7 +108,7 @@
 
 
 (after! org
-  ;; (setq electric-indent-mode nil)
+  (setq electric-indent-mode nil)
   (setq org-startup-folded 'content)
   (setq org-tags-column -77)
   (setq org-agenda-files '("~/notebook/notes.org"
@@ -350,6 +350,7 @@
 ;;   (setq lsp-pylsp-plugins-pyflakes-enabled nil)
 ;;   (setq lsp-pylsp-plugins-mccabe-enabled t))
 
+;; (use-package! dape)
 
 ;; NOT compatible with eglot
 ;; (after! dap-mode
