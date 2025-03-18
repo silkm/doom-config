@@ -291,19 +291,19 @@
 (after! eglot
   (add-to-list 'eglot-server-programs
                ;;'(python-mode . ("ruff" "server"))))
-               '(python-mode . ("pylsp")))
-  (setq-default eglot-workspace-configuration
-                '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t)
-                                    :rope (:enabled t)
-                                    :pylsp_mypy (:enabled t)
-                                    :autopep8 (:enabled :json-false)
-                                    :pyflakes (:enabled :json-false)
-                                    :pylint (:enabled :json-false)
-                                    :mccabe (:enabled :json-false)
-                                    :flake8 (:enabled :json-false)
-                                    :pydocstyle (:enabled t)
-                                    :pycodestyle (:enabled :json-false)
-                                    )))))
+               '(python-mode . ("pylsp"))))
+;; (setq-default eglot-workspace-configuration
+;;               '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t)
+;;                                   :rope (:enabled t)
+;;                                   :pylsp_mypy (:enabled t)
+;;                                   :autopep8 (:enabled :json-false)
+;;                                   :pyflakes (:enabled :json-false)
+;;                                   :pylint (:enabled :json-false)
+;;                                   :mccabe (:enabled :json-false)
+;;                                   :flake8 (:enabled :json-false)
+;;                                   :pydocstyle (:enabled t)
+;;                                   :pycodestyle (:enabled :json-false)
+;;                                   )))))
 ;; (after! eglot
 ;;   (add-to-list 'eglot-server-programs
 ;;                ;;'(python-mode . ("ruff" "server"))))
@@ -328,15 +328,15 @@
 ;;                                              )))))
 
 
-(after! flymake
-  (setq python-flymake-command
-        '("ruff" "--quiet" "check"
-          "--preview" ; enables beta checks
-          "--line-length=100"
-          ;;,@(flatten-list (mapcar (lambda (code) (list "--select" code))
-          ;;                        '("E" "W"))) ;codes to select
-          "--output-format=pylint"
-          "--stdin-filename=stdin" "-")))
+;; (after! flymake
+;;   (setq python-flymake-command
+;;         '("ruff" "--quiet" "check"
+;;           "--preview" ; enables beta checks
+;;           "--line-length=100"
+;;           ;;,@(flatten-list (mapcar (lambda (code) (list "--select" code))
+;;           ;;                        '("E" "W"))) ;codes to select
+;;           "--output-format=pylint"
+;;           "--stdin-filename=stdin" "-")))
 
 ;; (after! lsp-mode
 ;;   :init
@@ -350,7 +350,9 @@
 ;;   (setq lsp-pylsp-plugins-pyflakes-enabled nil)
 ;;   (setq lsp-pylsp-plugins-mccabe-enabled t))
 
-;; (use-package! dape)
+(after! dape
+  (setq dape-buffer-window-arrangement 'right)
+  )
 
 ;; NOT compatible with eglot
 ;; (after! dap-mode
