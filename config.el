@@ -91,6 +91,7 @@
 (global-set-key (kbd "C-c t") 'transpose-frame)
 (global-set-key (kbd "C-c d") 'org-time-stamp-inactive)
 (global-set-key (kbd "C-c D") '(org-insert-time-stamp (current-time) t))
+(global-set-key (kbd "C-S-s") 'evil-avy-goto-char-timer)
 
 
 ;; Swap doom capture and scratch bindings
@@ -350,8 +351,9 @@
 ;;   (setq lsp-pylsp-plugins-pyflakes-enabled nil)
 ;;   (setq lsp-pylsp-plugins-mccabe-enabled t))
 
-(after! dape
-  (setq dape-buffer-window-arrangement 'right)
+(after! dape-mode
+  (setq dape-buffer-window-arrangement 'right
+        dape-inlay-hints nil)
   )
 
 ;; NOT compatible with eglot
@@ -397,5 +399,10 @@
         :i "C-<tab>" #'copilot-accept-completion
         :i "C-S-<tab>" #'copilot-accept-completion-by-word))
 
+
+(after! plantuml-mode
+  :init
+  (setq plantuml-jar-path "/Users/msilk/software/plantuml/plantuml-1.2025.2.jar"
+        plantuml-default-exec-mode 'jar))
 
 (setq fancy-splash-image (expand-file-name "splash-images/blackhole-lines-small.svg" doom-user-dir))
