@@ -415,6 +415,7 @@
 (after! plantuml-mode
   :init
   (setq plantuml-jar-path "/Users/msilk/software/plantuml/plantuml-1.2025.2.jar"
-        plantuml-default-exec-mode 'jar))
+        plantuml-executable-path "/opt/homebrew/bin/plantuml"
+        plantuml-default-exec-mode 'executable))
 
 (setq fancy-splash-image (expand-file-name "splash-images/blackhole-lines-small.svg" doom-user-dir))
