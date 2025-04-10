@@ -92,7 +92,13 @@
 (global-set-key (kbd "C-c d") 'org-time-stamp-inactive)
 (global-set-key (kbd "C-c D") '(org-insert-time-stamp (current-time) t))
 (global-set-key (kbd "C-S-s") 'evil-avy-goto-char-timer)
+(global-set-key (kbd "s-s") 'evil-avy-goto-char-timer)
 
+;; Disable arrow keys from the normal and insert maps
+(map! :ni "<left>"  #'ignore
+      :ni "<right>" #'ignore
+      :ni "<up>"    #'ignore
+      :ni "<down>"  #'ignore)
 
 ;; Swap doom capture and scratch bindings
 (map! :leader
@@ -106,6 +112,11 @@
 ;; (after! evil
 ;;   (add-hook 'evil-insert-state-entry-hook 'enter-insert-state-hook)
 ;;   (add-hook 'evil-replace-state-entry-hook 'enter-insert-state-hook))
+
+
+;; Avy reduce the timer
+(after! avy
+  (setq avy-timeout-seconds 0.3))
 
 
 (after! org
