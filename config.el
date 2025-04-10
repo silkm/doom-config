@@ -302,8 +302,8 @@
 ;; good!
 (after! eglot
   (add-to-list 'eglot-server-programs
-               ;;'(python-mode . ("ruff" "server"))))
-               '(python-mode . ("pylsp"))))
+               '(python-mode . ("ruff" "server"))))
+;;'(python-mode . ("pylsp"))))
 ;; (setq-default eglot-workspace-configuration
 ;;               '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t)
 ;;                                   :rope (:enabled t)
@@ -362,7 +362,8 @@
 ;;   (setq lsp-pylsp-plugins-pyflakes-enabled nil)
 ;;   (setq lsp-pylsp-plugins-mccabe-enabled t))
 
-(after! dape-mode
+(after! dape
+  :init
   (setq dape-buffer-window-arrangement 'right
         dape-inlay-hints nil)
   )
