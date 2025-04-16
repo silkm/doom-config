@@ -34,6 +34,8 @@
 ;; `load-theme' function. This is the default:
 ;; (setq doom-theme 'doom-one)
 (setq doom-theme 'doom-nord)
+;; (setq doom-theme 'doom-opera)
+
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -91,9 +93,11 @@
 (global-set-key (kbd "C-:") 'previous-multiframe-window)
 (global-set-key (kbd "C-c t") 'transpose-frame)
 (global-set-key (kbd "C-c d") 'org-time-stamp-inactive)
-(global-set-key (kbd "C-c D") '(org-insert-time-stamp (current-time) t))
+(global-set-key (kbd "C-c D") (lambda () (interactive) (org-insert-time-stamp (current-time) t)))
 (global-set-key (kbd "C-S-s") 'evil-avy-goto-char-timer)
 (global-set-key (kbd "s-s") 'evil-avy-goto-char-timer)
+(global-set-key (kbd "s-d") 'evil-multiedit-match-and-next)
+(global-set-key (kbd "s-D") 'evil-multiedit-match-and-prev)
 
 ;; Disable arrow keys from the normal and insert maps
 (map! :ni "<left>"  #'ignore
