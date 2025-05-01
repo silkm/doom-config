@@ -311,55 +311,28 @@
 ;; of using flymake instead of flycheck (as flymake uses ruff).
 ;; Aside from the ugly error popups flymake gives, it's really
 ;; good!
+;; (alt) == disabled by default, alternate tool python-lsp-server can use
+;; (ruff) == replaced by ruff
+;; Note that black and isort are handled by aphelia
 (after! eglot
   (add-to-list 'eglot-server-programs
-               '(python-mode . ("ruff" "server"))))
-;;'(python-mode . ("pylsp"))))
-;; (setq-default eglot-workspace-configuration
-;;               '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t)
-;;                                   :rope (:enabled t)
-;;                                   :pylsp_mypy (:enabled t)
-;;                                   :autopep8 (:enabled :json-false)
-;;                                   :pyflakes (:enabled :json-false)
-;;                                   :pylint (:enabled :json-false)
-;;                                   :mccabe (:enabled :json-false)
-;;                                   :flake8 (:enabled :json-false)
-;;                                   :pydocstyle (:enabled t)
-;;                                   :pycodestyle (:enabled :json-false)
-;;                                   )))))
-;; (after! eglot
-;;   (add-to-list 'eglot-server-programs
-;;                ;;'(python-mode . ("ruff" "server"))))
-;;                '(python-mode . ("pylsp")))
-;;   (setq eglot-workspace-configuration
-;;         '(:pylsp (:plugins (:jedi_completion (:include_params t
-;;                                               :fuzzy t)
+               ;; '(python-mode . ("ruff" "server"))))
+               '(python-mode . ("pylsp")))
+  (setq-default eglot-workspace-configuration
+                '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t) ;; autocompletion
+                                    :rope (:enabled t)                            ;; refactoring (can swap with lsp rope)
+                                    :pylsp_mypy (:enabled t)                      ;; type checking
+                                    :pydocstyle (:enabled t)                      ;; docstring style checking
+                                    :ruff (:enabled t :formatEnabled :json-false) ;; linting
+                                    :autopep8 (:enabled :json-false)              ;; (ruff) uses pycodestyle to auto format
+                                    :yapf (:enabled :json-false)                  ;; (ruff) applies formatting
+                                    :pyflakes (:enabled :json-false)              ;; (ruff) error checking
+                                    :mccabe (:enabled :json-false)                ;; (ruff) complexity checking
+                                    :pycodestyle (:enabled :json-false)           ;; (ruff) style checking
+                                    :flake8 (:enabled :json-false)                ;; (alt) error checking
+                                    :pylint (:enabled :json-false)                ;; (alt) linting
+                                    )))))
 
-
-
-
-
-;;                                              :autopep8 (:enabled nil)
-;;                                              :pyflakes (:enabled nil)
-;;                                              :pylint (:enabled nil)
-;;                                              :mccabe (:enabled nil)
-;;                                              :flake8 (:enabled nil)
-;;                                              :pydocstyle (:enabled t)
-;;                                              :pycodestyle (:enabled nil)
-;;                                              :pylsp-rope (:enabled t)
-;;                                              :pylsp-mypy (:enabled :json-false)
-;;                                              )))))
-
-
-;; (after! flymake
-;;   (setq python-flymake-command
-;;         '("ruff" "--quiet" "check"
-;;           "--preview" ; enables beta checks
-;;           "--line-length=100"
-;;           ;;,@(flatten-list (mapcar (lambda (code) (list "--select" code))
-;;           ;;                        '("E" "W"))) ;codes to select
-;;           "--output-format=pylint"
-;;           "--stdin-filename=stdin" "-")))
 
 ;; (after! lsp-mode
 ;;   :init
