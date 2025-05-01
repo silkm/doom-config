@@ -96,6 +96,7 @@
 (global-set-key (kbd "C-c D") (lambda () (interactive) (org-insert-time-stamp (current-time) t)))
 (global-set-key (kbd "C-S-s") 'evil-avy-goto-char-timer)
 (global-set-key (kbd "s-s") 'evil-avy-goto-char-timer)
+(global-set-key (kbd "s-f") 'evil-avy-goto-line)
 (global-set-key (kbd "s-d") 'evil-multiedit-match-and-next)
 (global-set-key (kbd "s-D") 'evil-multiedit-match-and-prev)
 
@@ -121,7 +122,12 @@
 
 ;; Avy reduce the timer
 (after! avy
-  (setq avy-timeout-seconds 0.3))
+  (setq avy-timeout-seconds 0.3)
+  (defun avy-action-exchange (pt)
+    "Exchange sexp at PT with the one at point."
+    (set-mark pt)
+    (transpose-sexps 0))
+  (add-to-list 'avy-dispatch-alist '(?e . avy-action-exchange)))
 
 
 (after! org
