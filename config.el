@@ -137,6 +137,7 @@
   (setq org-agenda-files '("~/notebook/notes.org"
                            "~/notebook/fordham.org"
                            "~/notebook/baby.org"))
+  ;; (setq org-blank-before-new-entry '((heading . t) (plain-list-item . t)))
   (setq org-image-actual-width 300)
   (map! :map org-mode-map
         :n "C-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
