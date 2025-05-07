@@ -163,6 +163,11 @@
            :empty-lines 1)))
   (setq org-refile-targets '(("~/notebook/notes.org" :maxlevel . 3)))
   (setq org-refile-allow-creating-parent-nodes 'confirm)
+  (defun remove-ispell-completion-at-point ()
+    "Disable capf completion-at-point ispell-completion-at-point."
+    (setq-local
+     completion-at-point-functions
+     (remove 'ispell-completion-at-point completion-at-point-functions)))
   (add-hook 'org-mode-hook
             (lambda ()
               ;; (make-local-variable 'company-idle-delay)
