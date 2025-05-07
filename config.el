@@ -112,6 +112,11 @@
       "x" 'org-capture)
 
 
+;; Breadcrumbs globally
+(use-package! breadcrumb
+  :config
+  (breadcrumb-mode t))
+
 ;; ;; fix cursor bug
 ;; (defun enter-insert-state-hook ()
 ;;   (set-cursor-color "#ffffff"))
