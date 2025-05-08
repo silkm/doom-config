@@ -172,10 +172,9 @@
     (setq-local
      completion-at-point-functions
      (remove 'ispell-completion-at-point completion-at-point-functions)))
+  (add-hook 'org-mode-hook #'remove-ispell-completion-at-point)
   (add-hook 'org-mode-hook
             (lambda ()
-              ;; (make-local-variable 'company-idle-delay)
-              ;; (setq company-idle-delay 999)
               (display-line-numbers-mode -1))))
 
 
