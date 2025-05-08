@@ -111,18 +111,22 @@
       "X" 'doom/open-scratch-buffer
       "x" 'org-capture)
 
+;; Enable backtab to cycle outline collapse, akin to Org
+(map! :map help-mode-map
+      :n "<backtab>" #'outline-cycle-buffer)
+
 
 ;; Breadcrumbs globally
 (use-package! breadcrumb
   :config
   (breadcrumb-mode t))
 
-;; ;; fix cursor bug
-;; (defun enter-insert-state-hook ()
-;;   (set-cursor-color "#ffffff"))
-;; (after! evil
-;;   (add-hook 'evil-insert-state-entry-hook 'enter-insert-state-hook)
-;;   (add-hook 'evil-replace-state-entry-hook 'enter-insert-state-hook))
+;; Set insert state cursor to white always
+(defun enter-insert-state-hook ()
+  (set-cursor-color "#ffffff"))
+(after! evil
+  (add-hook 'evil-insert-state-entry-hook 'enter-insert-state-hook)
+  (add-hook 'evil-replace-state-entry-hook 'enter-insert-state-hook))
 
 
 ;; Avy reduce the timer
