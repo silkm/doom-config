@@ -103,11 +103,11 @@
 (global-set-key (kbd "s-d") 'evil-multiedit-match-and-next)
 (global-set-key (kbd "s-D") 'evil-multiedit-match-and-prev)
 
-;; Disable arrow keys from the normal and insert maps
-(map! :ni "<left>"  #'ignore
-      :ni "<right>" #'ignore
-      :ni "<up>"    #'ignore
-      :ni "<down>"  #'ignore)
+;; ;; Disable arrow keys from the normal and insert maps
+;; (map! :ni "<left>"  #'ignore
+;;       :ni "<right>" #'ignore
+;;       :ni "<up>"    #'ignore
+;;       :ni "<down>"  #'ignore)
 
 ;; Swap doom capture and scratch bindings
 (map! :leader
