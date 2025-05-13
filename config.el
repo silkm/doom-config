@@ -118,6 +118,10 @@
 (map! :map help-mode-map
       :n "<backtab>" #'outline-cycle-buffer)
 
+;; Add toggle to maximise frame to screen
+(map! :leader
+      :prefix "t"
+      "M" #'toggle-frame-maximized)
 
 ;; Breadcrumbs globally
 (use-package! breadcrumb
