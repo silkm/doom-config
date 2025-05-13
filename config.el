@@ -130,13 +130,17 @@
 
 ;; Set insert state cursor to white always
 (defun enter-insert-state-hook ()
-  (set-cursor-color "#ffffff"))
+  (set-cursor-color "#faf4ef"))
 (after! evil
   (add-hook 'evil-insert-state-entry-hook 'enter-insert-state-hook)
   (add-hook 'evil-replace-state-entry-hook 'enter-insert-state-hook))
 
 
-;; Avy reduce the timer
+;; Set normal mode cursor colour
+(setq evil-normal-state-cursor '(box "#faf4ef"))
+(setq evil-replace-state-cursor '(hbar "#faf4ef"))
+
+;; avy reduce the timer
 (after! avy
   (setq avy-timeout-seconds 0.2)
   (defun avy-action-exchange (pt)
