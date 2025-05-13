@@ -312,9 +312,9 @@
         :n "C-c C-w" #'(lambda () (interactive) (python-shell-send-buffer t))))
 
 
-(after! treesit
-  :init
-  (setq treesit-font-lock-level 3))
+;; (after! treesit
+;;   :init
+;;   (setq treesit-font-lock-level 3))
 
 ;; Apheleia set to run ruff format with no quote changing
 ;; and no line length splitting. These can be handled by the
@@ -365,9 +365,9 @@
                                     )))))
 
 
-;; Treesitter: Swap python-mode with python-ts-mode
-(setq major-mode-remap-alist
-      '((python-mode . python-ts-mode)))
+;; ;; Treesitter: Swap python-mode with python-ts-mode
+;; (setq major-mode-remap-alist
+;;       '((python-mode . python-ts-mode)))
 
 ;; (after! lsp-mode
 ;;   :init
