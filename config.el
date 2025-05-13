@@ -308,6 +308,10 @@
         :n "C-c C-w" #'(lambda () (interactive) (python-shell-send-buffer t))))
 
 
+(after! treesit
+  :init
+  (setq treesit-font-lock-level 3))
+
 ;; Apheleia set to run ruff format with no quote changing
 ;; and no line length splitting. These can be handled by the
 ;; pre-commit steps instead.
@@ -339,7 +343,8 @@
 (after! eglot
   (add-to-list 'eglot-server-programs
                ;; '(python-mode . ("ruff" "server"))))
-               '(python-mode . ("pylsp")))
+               '(python-mode . ("pylsp"))
+               '(python-ts-mode . ("pylsp")))
   (setq-default eglot-workspace-configuration
                 '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t) ;; [X] autocompletion
                                     :rope (:enabled t)                            ;; [X] refactoring (can swap with lsp rope)
@@ -355,6 +360,10 @@
                                     :pylint (:enabled :json-false)                ;; (alt) linting
                                     )))))
 
+
+;; Treesitter: Swap python-mode with python-ts-mode
+(setq major-mode-remap-alist
+      '((python-mode . python-ts-mode)))
 
 ;; (after! lsp-mode
 ;;   :init
