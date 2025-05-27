@@ -128,17 +128,20 @@
   :config
   (breadcrumb-mode t))
 
-;; Set insert state cursor to white always
-(defun enter-insert-state-hook ()
-  (set-cursor-color "#faf4ef"))
-(after! evil
-  (add-hook 'evil-insert-state-entry-hook 'enter-insert-state-hook)
-  (add-hook 'evil-replace-state-entry-hook 'enter-insert-state-hook))
-
+;; ;; Set insert state cursor to white always
+;; (defun enter-insert-state-hook ()
+;;   (set-cursor-color "#faf4ef"))
+;; (after! evil
+;;   (add-hook 'evil-insert-state-entry-hook 'enter-insert-state-hook)
+;;   (add-hook 'evil-replace-state-entry-hook 'enter-insert-state-hook))
 
 ;; Set normal mode cursor colour
-(setq evil-normal-state-cursor '(box "#faf4ef"))
-(setq evil-replace-state-cursor '(hbar "#faf4ef"))
+(setq evil-normal-state-cursor '(box "#fce9d9"))
+(setq evil-replace-state-cursor '(hbar "#fce9d9"))
+(setq evil-insert-state-cursor '(bar "#fce9d9"))
+(setq evil-operator-state-cursor (list #'evil-half-cursor "#fce9d9"))
+(setq evil-visual-state-cursor '(hollow "#fce9d9"))
+(setq evil-emacs-state-cursor (list  #'+evil-emacs-cursor-fn "#f5a098"))
 
 ;; avy reduce the timer
 (after! avy
