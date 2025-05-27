@@ -388,7 +388,8 @@
   :init
   (setq dape-buffer-window-arrangement 'right
         dape-inlay-hints nil)
-  )
+  (map! :leader
+        :desc "dape" "d" dape-global-map))
 
 ;; NOT compatible with eglot
 ;; (after! dap-mode
