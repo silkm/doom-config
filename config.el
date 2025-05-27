@@ -134,12 +134,6 @@
   :config
   (breadcrumb-mode t))
 
-;; ;; Set insert state cursor to white always
-;; (defun enter-insert-state-hook ()
-;;   (set-cursor-color "#faf4ef"))
-;; (after! evil
-;;   (add-hook 'evil-insert-state-entry-hook 'enter-insert-state-hook)
-;;   (add-hook 'evil-replace-state-entry-hook 'enter-insert-state-hook))
 
 ;; Set normal mode cursor colour
 (setq evil-normal-state-cursor '(box "#fce9d9"))
@@ -166,7 +160,6 @@
   (setq org-agenda-files '("~/notebook/notes.org"
                            "~/notebook/fordham.org"
                            "~/notebook/baby.org"))
-  ;; (setq org-blank-before-new-entry '((heading . t) (plain-list-item . t)))
   (setq org-image-actual-width 300)
   (map! :map org-mode-map
         :n "C-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
@@ -274,45 +267,14 @@
   ;; (setq-local ansi-color-for-comint-mode 'filter)
   (setq ess-indent-with-fancy-comments nil
         ess-style 'RStudio
-        ;; ess-ask-for-ess-directory nil
-        ;; ess-history-directory "~/.cache"
         inferior-R-args "--no-save")
   (map! :map ess-mode-map
         :nv "<C-return>" #'ess-eval-line-and-step
         :n "C-c m" #'ess-reset-ansi-colours)
   :config
-  ;; (setq flycheck-lintr-linters
-  ;;       (concat "with_defaults(line_length_linter(120), "
-  ;;               "object_usage_linter=NULL)"))
-  ;; (defun flycheck-custom-simple-linters ()
-  ;;   (interactive)
-  ;;   (setq flycheck-lintr-linters
-  ;;         (concat "with_defaults(line_length_linter(120), "
-  ;;                 "object_usage_linter=NULL)")))
-  ;; (defun flycheck-custom-strict-linters ()
-  ;;   (interactive)
-  ;;   (setq flycheck-lintr-linters
-  ;;         (concat "with_defaults(line_length_linter(120), "
-  ;;                 "absolute_path_linter, "
-  ;;                 "nonportable_path_linter, "
-  ;;                 "camel_case_linter, "
-  ;;                 "extraction_operator_linter, "
-  ;;                 "implicit_integer_linter, "
-  ;;                 "paren_brace_linter, "
-  ;;                 "semicolon_terminator_linter, "
-  ;;                 "todo_comment_linter, "
-  ;;                 "T_and_F_symbol_linter, "
-  ;;                 "undesirable_function_linter, "
-  ;;                 "undesirable_operator_linter, "
-  ;;                 "unneeded_concatenation_linter)")))
   (defun ess-reset-ansi-colours ()
     (interactive)
     (setq-local ansi-color-for-comint-mode 'filter)))
-
-
-;; Add path for LaTeX
-;; (setenv "PATH" (concat (getenv "PATH") ":/Library/TeX/texbin/"))
-;; (setq exec-path (append exec-path '("/Library/TeX/texbin/")))
 
 
 (after! python
@@ -320,10 +282,6 @@
   (map! :map python-mode-map
         :n "C-c C-w" #'(lambda () (interactive) (python-shell-send-buffer t))))
 
-
-;; (after! treesit
-;;   :init
-;;   (setq treesit-font-lock-level 3))
 
 ;; Apheleia set to run ruff format with no quote changing
 ;; and no line length splitting. These can be handled by the
@@ -336,11 +294,6 @@
         '(ruff-isort ruff))
   (setf (alist-get 'python-ts-mode apheleia-mode-alist)
         '(ruff-isort ruff)))
-
-
-;; (after! tramp
-;;   :init
-;;   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 
 
 ;; EGLOT + PYLSP + RUFF
@@ -375,64 +328,12 @@
                                     )))))
 
 
-;; ;; Treesitter: Swap python-mode with python-ts-mode
-;; (setq major-mode-remap-alist
-;;       '((python-mode . python-ts-mode)))
-
-;; (after! lsp-mode
-;;   :init
-;;   (setq lsp-pylsp-plugins-pylint-enabled t)
-;;   (setq lsp-pylsp-plugins-flake8-enabled nil)
-;;   (setq lsp-pylsp-plugins-mypy-live-mode t)
-;;   (setq lsp-pylsp-plugins-jedi-completion-fuzzy t)
-;;   (setq lsp-pylsp-plugins-jedi-completion-enabled t)
-;;   (setq lsp-pylsp-plugins-pycodestyle-enabled nil)
-;;   (setq lsp-pylsp-plugins-pydocstyle-enabled nil)
-;;   (setq lsp-pylsp-plugins-pyflakes-enabled nil)
-;;   (setq lsp-pylsp-plugins-mccabe-enabled t))
-
 (after! dape
   :init
   (setq dape-buffer-window-arrangement 'right
         dape-inlay-hints nil)
   (map! :leader
         :desc "dape" "d" dape-global-map))
-
-;; NOT compatible with eglot
-;; (after! dap-mode
-;;   :init
-;;   (setq dap-python-debugger 'debugpy)
-;;   (setq dap-auto-configure-features '(locals breakpoints tooltip))
-;;   (map! :map dap-mode-map
-;;         :leader
-;;         :prefix ("d" . "dap")
-;;         ;; basics
-;;         :desc "dap next"          "n" #'dap-next
-;;         :desc "dap step in"       "i" #'dap-step-in
-;;         :desc "dap step out"      "o" #'dap-step-out
-;;         :desc "dap continue"      "c" #'dap-continue
-;;         :desc "dap hydra"         "h" #'dap-hydra
-;;         :desc "dap debug restart" "r" #'dap-debug-restart
-;;         :desc "dap debug"         "s" #'dap-debug
-
-;;         ;; debug
-;;         :prefix ("dd" . "Debug")
-;;         :desc "dap debug recent"  "r" #'dap-debug-recent
-;;         :desc "dap debug last"    "l" #'dap-debug-last
-
-;;         ;; eval
-;;         :prefix ("de" . "Eval")
-;;         :desc "eval"                "e" #'dap-eval
-;;         :desc "eval region"         "r" #'dap-eval-region
-;;         :desc "eval thing at point" "s" #'dap-eval-thing-at-point
-;;         :desc "add expression"      "a" #'dap-ui-expressions-add
-;;         :desc "remove expression"   "d" #'dap-ui-expressions-remove
-
-;;         :prefix ("db" . "Breakpoint")
-;;         :desc "dap breakpoint toggle"      "b" #'dap-breakpoint-toggle
-;;         :desc "dap breakpoint condition"   "c" #'dap-breakpoint-condition
-;;         :desc "dap breakpoint hit count"   "h" #'dap-breakpoint-hit-condition
-;;         :desc "dap breakpoint log message" "l" #'dap-breakpoint-log-message))
 
 
 (after! copilot
