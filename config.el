@@ -39,6 +39,12 @@
 ;; (setq doom-theme 'doom-monokai-pro)
 ;; (setq doom-theme 'doom-opera)
 
+;; Edit faces for tree-sitter; remove bold from the following
+(custom-set-faces!  `(tree-sitter-hl-face:method.call :foreground ,(doom-color 'blue)))
+(custom-set-faces!  `(tree-sitter-hl-face:label :foreground ,(doom-color 'blue)))
+(custom-set-faces!  `(tree-sitter-hl-face:function.call :foreground ,(doom-color 'blue)))
+(custom-set-faces!  `(tree-sitter-hl-face:function.macro :foreground ,(doom-color 'blue)))
+(custom-set-faces!  `(tree-sitter-hl-face:function.special :foreground ,(doom-color 'blue)))
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
