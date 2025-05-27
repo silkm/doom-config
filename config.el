@@ -354,6 +354,7 @@
 ;; (ruff) == replaced by ruff
 ;; Note that black and isort are handled by aphelia
 (after! eglot
+  (setq eglot-code-action-indicator "*")
   (add-to-list 'eglot-server-programs
                ;; '(python-mode . ("ruff" "server"))))
                '(python-mode . ("pylsp"))
