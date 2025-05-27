@@ -440,4 +440,9 @@
         plantuml-executable-path "/opt/homebrew/bin/plantuml"
         plantuml-default-exec-mode 'executable))
 
+
+;; Doom splash screen
 (setq fancy-splash-image (expand-file-name "splash-images/blackhole-lines-small.svg" doom-user-dir))
+(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
+(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-loaded)
+(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-footer)
