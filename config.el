@@ -87,35 +87,33 @@
 ;; =============
 
 
-;; General settings
+;; BASICS
+
+
+;; Disable quit warning
 (setq confirm-kill-emacs nil)
 
 
-;; Edit faces for tree-sitter; remove bold from the following
-(custom-set-faces!  `(tree-sitter-hl-face:method.call :foreground ,(doom-color 'blue)))
-(custom-set-faces!  `(tree-sitter-hl-face:label :foreground ,(doom-color 'blue)))
-(custom-set-faces!  `(tree-sitter-hl-face:function.call :foreground ,(doom-color 'blue)))
-(custom-set-faces!  `(tree-sitter-hl-face:function.macro :foreground ,(doom-color 'blue)))
-(custom-set-faces!  `(tree-sitter-hl-face:function.special :foreground ,(doom-color 'blue)))
+;; Enable breadcrumb-mode
+(use-package! breadcrumb
+  :config
+  (breadcrumb-mode t))
 
 
-;; Global keybinds
+;; KEYBINDS
+
+
+;; Globals
 (global-set-key (kbd "C-;") 'other-window)
 (global-set-key (kbd "C-:") 'previous-multiframe-window)
 (global-set-key (kbd "C-c t") 'transpose-frame)
 (global-set-key (kbd "C-c d") 'org-time-stamp-inactive)
 (global-set-key (kbd "C-c D") (lambda () (interactive) (org-insert-time-stamp (current-time) t)))
-(global-set-key (kbd "C-S-s") 'evil-avy-goto-char-timer)
 (global-set-key (kbd "s-s") 'evil-avy-goto-char-timer)
 (global-set-key (kbd "s-f") 'evil-avy-goto-line)
 (global-set-key (kbd "s-d") 'evil-multiedit-match-and-next)
 (global-set-key (kbd "s-D") 'evil-multiedit-match-and-prev)
 
-;; ;; Disable arrow keys from the normal and insert maps
-;; (map! :ni "<left>"  #'ignore
-;;       :ni "<right>" #'ignore
-;;       :ni "<up>"    #'ignore
-;;       :ni "<down>"  #'ignore)
 
 ;; Swap doom capture and scratch bindings
 (map! :leader
@@ -131,19 +129,99 @@
       :prefix "t"
       "M" #'toggle-frame-maximized)
 
-;; Breadcrumbs globally
-(use-package! breadcrumb
-  :config
-  (breadcrumb-mode t))
+;; Rebind next-error and previous-error to use
+;; Flymake
+;; Bind flymake-goto-previous-error to previous error keybinds
+(map!
+ ;; ESC map bindings for previous error
+ (:map esc-map
+       "g M-p" #'flymake-goto-previous-error
+       "g p"   #'flymake-goto-previous-error)
+
+ ;; Evil motion state map for previous error
+ (:map evil-motion-state-map
+       "[ e" #'flymake-goto-previous-error)
+
+ ;; Global map bindings for previous error
+ "M-g M-p" #'flymake-goto-previous-error
+ "M-g p"   #'flymake-goto-previous-error
+
+ ;; Goto map bindings for previous error
+ (:map goto-map
+       "M-p" #'flymake-goto-previous-error
+       "p"   #'flymake-goto-previous-error)
+
+ ;; Help quick use map for previous error
+ (:map help-quick-use-map
+       "M-g M-p" #'flymake-goto-previous-error
+       "M-g p"   #'flymake-goto-previous-error)
+
+ ;; Next error repeat map for previous error
+ (:map next-error-repeat-map
+       "M-p" #'flymake-goto-previous-error
+       "p"   #'flymake-goto-previous-error))
+
+;; Bind flymake-goto-next-error to next error keybinds
+(map!
+ ;; Ctl-x map for next error
+ (:map ctl-x-map
+       "`" #'flymake-goto-next-error)
+
+ ;; ESC map bindings for next error
+ (:map esc-map
+       "g M-n" #'flymake-goto-next-error
+       "g n"   #'flymake-goto-next-error)
+
+ ;; Evil motion state map for next error
+ (:map evil-motion-state-map
+       "] e" #'flymake-goto-next-error)
+
+ ;; Global map bindings for next error
+ "C-x `"   #'flymake-goto-next-error
+ "M-g M-n" #'flymake-goto-next-error
+ "M-g n"   #'flymake-goto-next-error
+
+ ;; Goto map bindings for next error
+ (:map goto-map
+       "M-n" #'flymake-goto-next-error
+       "n"   #'flymake-goto-next-error)
+
+ ;; Help quick use map for next error
+ (:map help-quick-use-map
+       "C-x `"   #'flymake-goto-next-error
+       "M-g M-n" #'flymake-goto-next-error
+       "M-g n"   #'flymake-goto-next-error)
+
+ ;; Next error repeat map for next error
+ (:map next-error-repeat-map
+       "M-n" #'flymake-goto-next-error
+       "n"   #'flymake-goto-next-error))
+;; APPEARANCE
 
 
-;; Set normal mode cursor colour
+;; Doom splash screen
+(setq fancy-splash-image (expand-file-name "splash-images/blackhole-lines-small.svg" doom-user-dir))
+(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
+(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-loaded)
+(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-footer)
+
+
+;; Edit faces for tree-sitter; remove bold from the following
+(custom-set-faces!  `(tree-sitter-hl-face:method.call :foreground ,(doom-color 'blue)))
+(custom-set-faces!  `(tree-sitter-hl-face:label :foreground ,(doom-color 'blue)))
+(custom-set-faces!  `(tree-sitter-hl-face:function.call :foreground ,(doom-color 'blue)))
+(custom-set-faces!  `(tree-sitter-hl-face:function.macro :foreground ,(doom-color 'blue)))
+(custom-set-faces!  `(tree-sitter-hl-face:function.special :foreground ,(doom-color 'blue)))
+
+
+;; Cursor colours
 (setq evil-normal-state-cursor '(box "#fce9d9"))
 (setq evil-replace-state-cursor '(hbar "#fce9d9"))
 (setq evil-insert-state-cursor '(bar "#fce9d9"))
 (setq evil-operator-state-cursor (list #'evil-half-cursor "#fce9d9"))
 (setq evil-visual-state-cursor '(hollow "#fce9d9"))
 (setq evil-emacs-state-cursor (list  #'+evil-emacs-cursor-fn "#f5a098"))
+
 
 ;; avy reduce the timer
 (after! avy
@@ -155,16 +233,21 @@
   (add-to-list 'avy-dispatch-alist '(?e . avy-action-exchange)))
 
 
+;; Disable evil auto indent after o/O
+(after! evil
+  (setq evil-auto-indent nil))
+
+
 (after! org
   (setq electric-indent-mode nil)
   (setq org-startup-folded 'content)
-  (setq org-tags-column -77)
+  ;; (setq org-tags-column -77)
   (setq org-agenda-files '("~/notebook/notes.org"
                            "~/notebook/fordham.org"
                            "~/notebook/baby.org"))
   (setq org-image-actual-width 300)
   (map! :map org-mode-map
-        :n "C-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
+        :niv "C-S-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
   (setq org-capture-templates
         '(("j" "Journal" entry (file+olp+datetree "~/notebook/notes.org" "Journal")
            "* %^{PROMPT}  :note:\n%u\n\n%?\n"
@@ -190,14 +273,222 @@
   (add-hook 'org-mode-hook #'remove-ispell-completion-at-point)
   (add-hook 'org-mode-hook
             (lambda ()
-              (display-line-numbers-mode -1))))
+              (display-line-numbers-mode -1)))
+  ;; Redefine org--insert item to add newlines
+  (defun +org--insert-item-edit (direction)
+    (let ((context (org-element-lineage
+                    (org-element-context)
+                    '(table table-row headline inlinetask item plain-list)
+                    t)))
+      (pcase (org-element-type context)
+        ;; Add a new list item (carrying over checkboxes if necessary)
+        ((or `item `plain-list)
+         (let ((orig-point (point)))
+           ;; Position determines where org-insert-todo-heading and `org-insert-item'
+           ;; insert the new list item.
+           (if (eq direction 'above)
+               (org-beginning-of-item)
+             (end-of-line))
+           (let* ((ctx-item? (eq 'item (org-element-type context)))
+                  (ctx-cb (org-element-property :contents-begin context))
+                  ;; Hack to handle edge case where the point is at the
+                  ;; beginning of the first item
+                  (beginning-of-list? (and (not ctx-item?)
+                                           (= ctx-cb orig-point)))
+                  (item-context (if beginning-of-list?
+                                    (org-element-context)
+                                  context))
+                  ;; Horrible hack to handle edge case where the
+                  ;; line of the bullet is empty
+                  (ictx-cb (org-element-property :contents-begin item-context))
+                  (empty? (and (eq direction 'below)
+                               ;; in case contents-begin is nil, or contents-begin
+                               ;; equals the position end of the line, the item is
+                               ;; empty
+                               (or (not ictx-cb)
+                                   (= ictx-cb
+                                      (1+ (point))))))
+                  (pre-insert-point (point)))
+             ;; Insert dummy content, so that `org-insert-item'
+             ;; inserts content below this item
+             (when empty?
+               (insert " "))
+             (org-insert-item (org-element-property :checkbox context))
+             ;; Remove dummy content
+             (when empty?
+               (delete-region pre-insert-point (1+ pre-insert-point))))))
+        ;; Add a new table row
+        ((or `table `table-row)
+         (pcase direction
+           ('below (save-excursion (org-table-insert-row t))
+                   (org-table-next-row))
+           ('above (save-excursion (org-shiftmetadown))
+                   (+org/table-previous-row))))
+        ;; Otherwise, add a new heading, carrying over any todo state, if
+        ;; necessary.
+        (_
+         (let ((level (or (org-current-level) 1)))
+           ;; I intentionally avoid `org-insert-heading' and the like because they
+           ;; impose unpredictable whitespace rules depending on the cursor
+           ;; position. It's simpler to express this command's responsibility at a
+           ;; lower level than work around all the quirks in org's API.
+           (pcase direction
+             (`below
+              (let (org-insert-heading-respect-content)
+                (goto-char (line-end-position))
+                (org-end-of-subtree)
+                ;; Check if we're about to create a TODO heading
+                (let* ((todo-keyword (org-element-property :todo-keyword context))
+                       (todo-type (org-element-property :todo-type context))
+                       (will-be-todo (and todo-keyword (not (eq todo-type 'done)))))
+                  ;; Only ensure newline above new heading if it won't be a TODO
+                  (unless (or will-be-todo
+                              (looking-back "\n\n" (max (point-min) (- (point) 2))))
+                    (insert "\n")))
+                (insert "\n" (make-string level ?*) " ")))
+             (`above
+              (org-back-to-heading)
+              ;; Check if we're about to create a TODO heading
+              (let* ((todo-keyword (org-element-property :todo-keyword context))
+                     (todo-type (org-element-property :todo-type context))
+                     (will-be-todo (and todo-keyword (not (eq todo-type 'done)))))
+                ;; Only ensure newline above new heading if it won't be a TODO
+                (unless (or will-be-todo
+                            (looking-back "\n\n" (max (point-min) (- (point) 2))))
+                  (insert "\n")))
+              (insert (make-string level ?*) " ")
+              (save-excursion (insert "\n"))))
+           (run-hooks 'org-insert-heading-hook)
+           (when-let* ((todo-keyword (org-element-property :todo-keyword context))
+                       (todo-type    (org-element-property :todo-type context)))
+             (org-todo
+              (cond ((eq todo-type 'done)
+                     ;; Doesn't make sense to create more "DONE" headings
+                     (car (+org-get-todo-keywords-for todo-keyword)))
+                    (todo-keyword)
+                    ('todo)))))))
+      (when (org-invisible-p)
+        (org-show-hidden-entry))
+      (when (and (bound-and-true-p evil-local-mode)
+                 (not (evil-emacs-state-p)))
+        (evil-insert 1))))
+  (defun +org--insert-item-edit-2 (direction)
+    (let ((context (org-element-lineage
+                    (org-element-context)
+                    '(table table-row headline inlinetask item plain-list)
+                    t)))
+      (pcase (org-element-type context)
+        ;; Add a new list item (carrying over checkboxes if necessary)
+        ((or `item `plain-list)
+         (let ((orig-point (point)))
+           ;; Position determines where org-insert-todo-heading and `org-insert-item'
+           ;; insert the new list item.
+           (if (eq direction 'above)
+               (org-beginning-of-item)
+             (end-of-line))
+           (let* ((ctx-item? (eq 'item (org-element-type context)))
+                  (ctx-cb (org-element-property :contents-begin context))
+                  ;; Hack to handle edge case where the point is at the
+                  ;; beginning of the first item
+                  (beginning-of-list? (and (not ctx-item?)
+                                           (= ctx-cb orig-point)))
+                  (item-context (if beginning-of-list?
+                                    (org-element-context)
+                                  context))
+                  ;; Horrible hack to handle edge case where the
+                  ;; line of the bullet is empty
+                  (ictx-cb (org-element-property :contents-begin item-context))
+                  (empty? (and (eq direction 'below)
+                               ;; in case contents-begin is nil, or contents-begin
+                               ;; equals the position end of the line, the item is
+                               ;; empty
+                               (or (not ictx-cb)
+                                   (= ictx-cb
+                                      (1+ (point))))))
+                  (pre-insert-point (point)))
+             ;; Insert dummy content, so that `org-insert-item'
+             ;; inserts content below this item
+             (when empty?
+               (insert " "))
+             (org-insert-item (org-element-property :checkbox context))
+             ;; Remove dummy content
+             (when empty?
+               (delete-region pre-insert-point (1+ pre-insert-point))))))
+        ;; Add a new table row
+        ((or `table `table-row)
+         (pcase direction
+           ('below (save-excursion (org-table-insert-row t))
+                   (org-table-next-row))
+           ('above (save-excursion (org-shiftmetadown))
+                   (+org/table-previous-row))))
+        ;; Otherwise, add a new heading, carrying over any todo state, if
+        ;; necessary.
+        (_
+         (let ((level (or (org-current-level) 1)))
+           ;; I intentionally avoid `org-insert-heading' and the like because they
+           ;; impose unpredictable whitespace rules depending on the cursor
+           ;; position. It's simpler to express this command's responsibility at a
+           ;; lower level than work around all the quirks in org's API.
+           (pcase direction
+             (`below
+              (let (org-insert-heading-respect-content)
+                (goto-char (line-end-position))
+                (org-end-of-subtree)
+                ;; Ensure newline above new heading
+                (unless (looking-back "\n\n" (max (point-min) (- (point) 2)))
+                  (insert "\n"))
+                (insert "\n" (make-string level ?*) " ")))
+             (`above
+              (org-back-to-heading)
+              ;; Ensure newline above new heading
+              (unless (looking-back "\n\n" (max (point-min) (- (point) 2)))
+                (insert "\n"))
+              (insert (make-string level ?*) " ")
+              (save-excursion (insert "\n"))))
+           (run-hooks 'org-insert-heading-hook)
+           (when-let* ((todo-keyword (org-element-property :todo-keyword context))
+                       (todo-type    (org-element-property :todo-type context)))
+             (org-todo
+              (cond ((eq todo-type 'done)
+                     ;; Doesn't make sense to create more "DONE" headings
+                     (car (+org-get-todo-keywords-for todo-keyword)))
+                    (todo-keyword)
+                    ('todo)))))))
+      (when (org-invisible-p)
+        (org-show-hidden-entry))
+      (when (and (bound-and-true-p evil-local-mode)
+                 (not (evil-emacs-state-p)))
+        (evil-insert 1))))
+  (defun +org/insert-item-below-edit (count)
+    "Inserts a new heading, table cell or item below the current one."
+    (interactive "p")
+    (dotimes (_ count) (+org--insert-item-edit 'below)))
+  (defun +org/insert-item-above-edit (count)
+    "Inserts a new heading, table cell or item below the current one."
+    (interactive "p")
+    (dotimes (_ count) (+org--insert-item-edit 'above)))
+  (map! :map org-mode-map
+        "C-<return>" #'+org/insert-item-below-edit
+        "C-RET"      #'+org/insert-item-below-edit
+        "s-<return>" #'+org/insert-item-below-edit
+        "C-S-<return>" #'+org/insert-item-above-edit
+        "C-S-RET"      #'+org/insert-item-above-edit
+        "S-s-<return>" #'+org/insert-item-above-edit)
+
+  (map! :after evil-org
+        :map evil-org-mode-map
+        :i "C-<return>" #'+org/insert-item-below-edit
+        :n "C-<return>" #'+org/insert-item-below-edit
+        :i "C-S-<return>" #'+org/insert-item-above-edit
+        :n "C-S-<return>" #'+org/insert-item-above-edit))
 
 
 (after! org-download
   (setq org-download-method 'download)
   (setq org-download-heading-lvl nil)
   (setq org-download-image-dir "~/notebook/img/")
-  (setq org-download-link-format "[[~/notebook/img/%s]]\n"))
+  (setq org-download-link-format "[[~/notebook/img/%s]]\n")
+  (advice-add 'org-id-get-create :override #'ignore))
 
 
 (after! winum
@@ -350,10 +641,3 @@
   (setq plantuml-jar-path "/Users/msilk/software/plantuml/plantuml-1.2025.2.jar"
         plantuml-executable-path "/opt/homebrew/bin/plantuml"
         plantuml-default-exec-mode 'executable))
-
-
-;; Doom splash screen
-(setq fancy-splash-image (expand-file-name "splash-images/blackhole-lines-small.svg" doom-user-dir))
-(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
-(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-loaded)
-(remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-footer)
