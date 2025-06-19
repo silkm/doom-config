@@ -262,6 +262,15 @@
            :empty-lines 1)
           ("t" "Task" entry (file "~/notebook/tasks.org")
            "* TODO %i%?\n")
+          ("p" "Project File" plain
+           (file (lambda ()
+                   (let ((filename (read-string "Filename: ")))
+                     (expand-file-name
+                      (format "%s_%s.org"
+                              filename
+                              (format-time-string "%Y%m%d"))
+                      "~/notebook/projects/"))))
+           "#+TITLE: %^{Title}\n#+DATE: %U\n#+DEADLINE: %^t\n#+FILETAGS: %^G\n#+OPTIONS: \\n:t num:nil tags:nil toc:nil ^:nil\n\n* Description\n\n%?\n\n* Definition of done\n\n* Steps\n\n* Tasks")
           ("l" "Maintenance Log" entry (file+headline "~/notebook/notes.org" "Maintenance")
            "* %^{PROMPT} %^g \n%u\n\n%?\n"
            :empty-lines 1)))
