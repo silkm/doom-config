@@ -129,6 +129,9 @@
       :prefix "t"
       "M" #'toggle-frame-maximized)
 
+;; Set Ctrl+K to kill to end of line in insert mode
+(map! :i "C-k" #'kill-line)
+
 ;; Rebind next-error and previous-error to use
 ;; Flymake
 ;; Bind flymake-goto-previous-error to previous error keybinds
