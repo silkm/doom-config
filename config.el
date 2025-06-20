@@ -245,8 +245,7 @@
   (setq electric-indent-mode nil)
   (setq org-startup-folded 'content)
   ;; (setq org-tags-column -77)
-  (setq org-agenda-files '("~/notebook"))
-  (setq org-agenda-files (directory-files-recursively "~/notebook/" "\\.org$"))
+  (setq org-agenda-files (directory-files-recursively "~/notebook/projects/" "\\.org$"))
   (setq org-image-actual-width 300)
   (map! :map org-mode-map
         :niv "C-S-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
