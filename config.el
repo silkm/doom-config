@@ -478,6 +478,17 @@
 
 
 (after! ess
+  (defun my-ess-insert-header ()
+    "Insert header lines when opening new R files."
+    (when (and (eq major-mode 'ess-r-mode)
+               (= (point-max) 1)) ;; File is empty
+      (insert "# " (file-name-nondirectory (buffer-file-name)))
+      (newline)
+      (insert "# M. Silk")
+      (newline)
+      (newline)
+      (goto-char (point-max))))
+  (add-hook 'ess-r-mode-hook 'my-ess-insert-header)
   :defer
   ;; Fix R:ESS comments going grey and unreadable
   ;; (setq-local ansi-color-for-comint-mode 'filter)
