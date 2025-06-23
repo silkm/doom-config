@@ -220,7 +220,7 @@
 
 ;; avy reduce the timer
 (after! avy
-  (setq avy-timeout-seconds 0.2)
+  (setq avy-timeout-seconds 0.25)
   (defun avy-action-exchange (pt)
     "Exchange sexp at PT with the one at point."
     (set-mark pt)
