@@ -470,17 +470,16 @@
 
 
 (after! ess
-  (defun my-ess-insert-header ()
-    "Insert header lines when opening new R files."
-    (when (and (eq major-mode 'ess-r-mode)
-               (= (point-max) 1)) ;; File is empty
-      (insert "# " (file-name-nondirectory (buffer-file-name)))
-      (newline)
-      (insert "# M. Silk")
-      (newline)
-      (newline)
-      (goto-char (point-max))))
-  (add-hook 'ess-r-mode-hook 'my-ess-insert-header)
+  (defun ess-insert-header ()
+    "Insert R header lines and standard libs."
+    (interactive)
+    (insert "# "
+            (file-name-nondirectory (buffer-file-name))
+            "\n# M. Silk\n"
+            "# " (format-time-string "%Y%m%d")
+            "\n\n\n\nlibrary(data.table)\nlibrary(magrittr)\nlibrary(purrr)\n")
+    (goto-char (point-min))
+    (forward-line 4))
   :defer
   ;; Fix R:ESS comments going grey and unreadable
   ;; (setq-local ansi-color-for-comint-mode 'filter)
@@ -489,7 +488,8 @@
         inferior-R-args "--no-save")
   (map! :map ess-mode-map
         :nv "<C-return>" #'ess-eval-line-and-step
-        :n "C-c m" #'ess-reset-ansi-colours)
+        :n "C-c m" #'ess-reset-ansi-colours
+        "C-c h" #'ess-insert-header)
   :config
   (defun ess-reset-ansi-colours ()
     (interactive)
