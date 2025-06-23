@@ -132,73 +132,65 @@
 ;; Set Ctrl+K to kill to end of line in insert mode
 (map! :i "C-k" #'kill-line)
 
-;; Rebind next-error and previous-error to use
-;; Flymake
+
 ;; Bind flymake-goto-prev-error to previous error keybinds
+(map! :map esc-map
+      "g M-p" #'flymake-goto-prev-error)
+
+(map! :map esc-map
+      "g M-p" #'flymake-goto-prev-error
+      "g p"   #'flymake-goto-prev-error)
+
+(map! :map evil-motion-state-map
+      "[ e" #'flymake-goto-prev-error)
+
 (map!
- ;; ESC map bindings for previous error
- (:map esc-map
-       "g M-p" #'flymake-goto-prev-error
-       "g p"   #'flymake-goto-prev-error)
-
- ;; Evil motion state map for previous error
- (:map evil-motion-state-map
-       "[ e" #'flymake-goto-prev-error)
-
- ;; Global map bindings for previous error
  "M-g M-p" #'flymake-goto-prev-error
- "M-g p"   #'flymake-goto-prev-error
+ "M-g p"   #'flymake-goto-prev-error)
 
- ;; Goto map bindings for previous error
- (:map goto-map
-       "M-p" #'flymake-goto-prev-error
-       "p"   #'flymake-goto-prev-error)
+(map! :map goto-map
+      "M-p" #'flymake-goto-prev-error
+      "p"   #'flymake-goto-prev-error)
 
- ;; Help quick use map for previous error
- (:map help-quick-use-map
-       "M-g M-p" #'flymake-goto-prev-error
-       "M-g p"   #'flymake-goto-prev-error)
+(map! :map help-quick-use-map
+      "M-g M-p" #'flymake-goto-prev-error
+      "M-g p"   #'flymake-goto-prev-error)
 
- ;; Next error repeat map for previous error
- (:map next-error-repeat-map
-       "M-p" #'flymake-goto-prev-error
-       "p"   #'flymake-goto-prev-error))
+(map! :map next-error-repeat-map
+      "M-p" #'flymake-goto-prev-error
+      "p"   #'flymake-goto-prev-error)
+
 
 ;; Bind flymake-goto-next-error to next error keybinds
+(map! :map ctl-x-map
+      "`" #'flymake-goto-next-error)
+
+(map! :map esc-map
+      "g M-n" #'flymake-goto-next-error
+      "g n"   #'flymake-goto-next-error)
+
+(map! :map evil-motion-state-map
+      "] e" #'flymake-goto-next-error)
+
 (map!
- ;; Ctl-x map for next error
- (:map ctl-x-map
-       "`" #'flymake-goto-next-error)
-
- ;; ESC map bindings for next error
- (:map esc-map
-       "g M-n" #'flymake-goto-next-error
-       "g n"   #'flymake-goto-next-error)
-
- ;; Evil motion state map for next error
- (:map evil-motion-state-map
-       "] e" #'flymake-goto-next-error)
-
- ;; Global map bindings for next error
  "C-x `"   #'flymake-goto-next-error
  "M-g M-n" #'flymake-goto-next-error
- "M-g n"   #'flymake-goto-next-error
+ "M-g n"   #'flymake-goto-next-error)
 
- ;; Goto map bindings for next error
- (:map goto-map
-       "M-n" #'flymake-goto-next-error
-       "n"   #'flymake-goto-next-error)
+(map! :map goto-map
+      "M-n" #'flymake-goto-next-error
+      "n"   #'flymake-goto-next-error)
 
- ;; Help quick use map for next error
- (:map help-quick-use-map
-       "C-x `"   #'flymake-goto-next-error
-       "M-g M-n" #'flymake-goto-next-error
-       "M-g n"   #'flymake-goto-next-error)
+(map! :map help-quick-use-map
+      "C-x `"   #'flymake-goto-next-error
+      "M-g M-n" #'flymake-goto-next-error
+      "M-g n"   #'flymake-goto-next-error)
 
- ;; Next error repeat map for next error
- (:map next-error-repeat-map
-       "M-n" #'flymake-goto-next-error
-       "n"   #'flymake-goto-next-error))
+(map! :map next-error-repeat-map
+      "M-n" #'flymake-goto-next-error
+      "n"   #'flymake-goto-next-error)
+
+
 ;; APPEARANCE
 
 
