@@ -577,10 +577,9 @@
 
 (use-package! gptel
   :config
-
   (setq gptel-backend (gptel-make-anthropic "Claude"
-                                            :stream t
-                                            :key gptel-api-key))
+                        :stream t
+                        :key gptel-api-key))
   (setq gptel-model 'claude-sonnet-4-20250514)
   (setq gptel-default-mode 'org-mode))
 
