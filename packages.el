@@ -55,5 +55,6 @@
 ;; (package! exec-path-from-shell)
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
+(package! gptel :recipe (:nonrecursive t))
 (package! dape)
 (package! breadcrumb)

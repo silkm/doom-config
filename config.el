@@ -575,6 +575,16 @@
         :i "C-S-<tab>" #'copilot-accept-completion-by-word))
 
 
+(use-package! gptel
+  :config
+
+  (setq gptel-backend (gptel-make-anthropic "Claude"
+                                            :stream t
+                                            :key gptel-api-key))
+  (setq gptel-model 'claude-sonnet-4-20250514)
+  (setq gptel-default-mode 'org-mode))
+
+
 (after! plantuml-mode
   :init
   (setq plantuml-jar-path "/Users/msilk/software/plantuml/plantuml-1.2025.2.jar"
