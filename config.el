@@ -259,7 +259,7 @@
            "* Seminar: %^{PROMPT}  :seminar:\n%u\n\n%?\n"
            :empty-lines 1)
           ("t" "Task" entry (file "~/notebook/tasks.org")
-           "* TODO %i%?\n")
+           "* TODO [#B] %i%?\n")
           ("p" "Project File" plain
            (file (lambda ()
                    (let ((filename (read-string "Filename: ")))
