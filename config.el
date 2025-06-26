@@ -237,7 +237,14 @@
   (setq electric-indent-mode nil)
   (setq org-startup-folded 'content)
   ;; (setq org-tags-column -77)
-  (setq org-agenda-files (directory-files-recursively "~/notebook/projects/" "\\.org$"))
+  (setq org-agenda-files
+        (append
+         (directory-files-recursively "~/notebook/projects/" "\\.org$")
+         (directory-files-recursively "~/notebook/docs/" "\\.org$")
+         (directory-files-recursively "~/notebook/home/" "\\.org$")
+         (list "~/notebook/notes.org" "~/notebook/tasks.org")))
+  (setq org-refile-targets '((org-agenda-files :maxlevel . 2)))
+  (setq org-refile-allow-creating-parent-nodes 'confirm)
   (setq org-image-actual-width 300)
   (map! :map org-mode-map
         :niv "C-S-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
