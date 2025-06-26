@@ -389,13 +389,19 @@
     "Inserts a new heading, table cell or item below the current one."
     (interactive "p")
     (dotimes (_ count) (+org--insert-item-edit 'above)))
+  (defun org-insert-checkbox ()
+    "Insert a checkbox - [ ] and enter insert mode."
+    (interactive)
+    (insert "- [ ] ")
+    (evil-insert-state))
   (map! :map org-mode-map
         "C-<return>" #'+org/insert-item-below-edit
         "C-RET"      #'+org/insert-item-below-edit
         "s-<return>" #'+org/insert-item-below-edit
         "C-S-<return>" #'+org/insert-item-above-edit
         "C-S-RET"      #'+org/insert-item-above-edit
-        "S-s-<return>" #'+org/insert-item-above-edit)
+        "S-s-<return>" #'+org/insert-item-above-edit
+        "C-c l" #'org-insert-checkbox)
 
   (map! :after evil-org
         :map evil-org-mode-map
