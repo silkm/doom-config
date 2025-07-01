@@ -254,28 +254,80 @@
         '(("j" "Journal" entry (file+olp+datetree "~/notebook/notes.org" "Journal")
            "* %^{PROMPT}  :note:\n%u\n\n%?\n"
            :empty-lines 1)
+
           ("m" "Meeting" entry (file+olp+datetree "~/notebook/notes.org" "Journal")
            "* Meeting: %^{PROMPT}  :meeting:\n%u\n\n%?\n"
            :empty-lines 1)
+
           ("s" "Seminar" entry (file+olp+datetree "~/notebook/notes.org" "Journal")
            "* Seminar: %^{PROMPT}  :seminar:\n%u\n\n%?\n"
            :empty-lines 1)
+
           ("t" "Task" entry (file "~/notebook/tasks.org")
            "* TODO [#B] %i%?\n")
-          ("p" "Project File" plain
+
+          ("P" "Project File" plain
            (file (lambda ()
                    (let ((filename (read-string "Filename: ")))
                      (expand-file-name
-                      (format "%s_%s.org"
-                              filename
-                              (format-time-string "%Y%m%d"))
+                      (format "%s.org"
+                              filename)
                       "~/notebook/projects/"))))
-           "#+TITLE: %^{Title}\n#+DATE: %U\n#+FILETAGS: %^G\n#+OPTIONS: \\n:t num:nil tags:nil toc:nil ^:nil\n\n* Description\n\n%?\n\n* Definition of done\n\n* Steps\n\n* Tasks")
+           "#+TITLE: %^{Project title: }\n#+DATE: %U\n#+FILETAGS: %^G\n#+OPTIONS: \\n:t num:nil tags:nil toc:nil ^:nil\n\n%?\n\n* Progress\n\n* Tasks")
+
+          ;; Example that adds a date to the filename
+          ;; ("P" "Project File" plain
+          ;;  (file (lambda ()
+          ;;          (let ((filename (read-string "Filename: ")))
+          ;;            (expand-file-name
+          ;;             (format "%s_%s.org"
+          ;;                     filename
+          ;;                     (format-time-string "%Y%m%d"))
+          ;;             "~/notebook/projects/"))))
+          ;;  "#+TITLE: %^{Project title: }\n#+DATE: %U\n#+FILETAGS: %^G\n#+OPTIONS: \\n:t num:nil tags:nil toc:nil ^:nil\n\n%?\n\n* Progress\n\n* Tasks")
+
+          ("p" "Project Task" entry
+           (file+headline
+            (lambda ()
+              (read-file-name "Select project file: "
+                              "~/notebook/projects/"
+                              nil t nil
+                              (lambda (f)
+                                (string-match "\\.org$" f))))
+            "Progress")
+           "* %^{Task name}\n%U\n\n*Description*\n%?\n\n*Definition of Done*\n\n** Steps"
+           :empty-lines 1)
+
           ("l" "Maintenance Log" entry (file+headline "~/notebook/notes.org" "Maintenance")
            "* %^{PROMPT} %^g \n%u\n\n%?\n"
            :empty-lines 1)))
-  (setq org-refile-targets '(("~/notebook/notes.org" :maxlevel . 3)))
-  (setq org-refile-allow-creating-parent-nodes 'confirm)
+  (defun my/refile-to-project-tasks ()
+    "Refile current heading to a selected project file under * Tasks heading."
+    (interactive)
+    (let* ((project-dir "~/notebook/projects/")
+           (files (directory-files project-dir t ".*\\.org$"))
+           (file-names (mapcar #'file-name-nondirectory files))
+           (selected-name (completing-read "Select project file: " file-names nil t))
+           (selected-file (expand-file-name selected-name project-dir)))
+      ;; Set up refile targets temporarily
+      (let ((pos (save-excursion
+                   (find-file selected-file)
+                   (org-find-exact-headline-in-buffer "Tasks"))))
+        ;; Refile to the selected file under Tasks
+        (org-refile nil nil (list "Tasks" selected-file nil pos)))))
+  ;; (defun my/refile-to-project-tasks ()
+  ;;   "Refile current heading to a selected project file under * Tasks heading."
+  ;;   (interactive)
+  ;;   (let* ((project-dir "~/notebook/projects/")
+  ;;          (files (directory-files project-dir t ".*\\.org$"))
+  ;;          (file-names (mapcar #'file-name-nondirectory files))
+  ;;          (selected-name (completing-read "Select project file: " file-names nil t))
+  ;;          (selected-file (expand-file-name selected-name project-dir)))
+  ;;     ;; Set up refile targets temporarily
+  ;;     (let ((org-refile-targets `((,selected-file :regexp . "^\\* Tasks")))
+  ;;           (org-refile-use-outline-path nil))
+  ;;       ;; Refile to the selected file under Tasks
+  ;;       (org-refile nil nil (list "Tasks" selected-file)))))
   (defun remove-ispell-completion-at-point ()
     "Disable capf completion-at-point ispell-completion-at-point."
     (setq-local
