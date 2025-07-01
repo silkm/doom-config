@@ -624,9 +624,12 @@
 
 (after! copilot
   :init
+  (setq copilot-indent-offset-warning-disable t)
   (map! :map copilot-mode-map
-        :i "C-<tab>" #'copilot-accept-completion
-        :i "C-S-<tab>" #'copilot-accept-completion-by-word))
+        "C-<tab>" #'copilot-accept-completion
+        "C-S-<tab>" #'copilot-accept-completion-by-word
+        "C-n" #'copilot-next-completion
+        "C-p" #'copilot-previous-completion))
 
 
 (use-package! gptel
