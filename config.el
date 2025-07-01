@@ -108,11 +108,12 @@
 (global-set-key (kbd "C-:") 'previous-multiframe-window)
 (global-set-key (kbd "C-c t") 'transpose-frame)
 (global-set-key (kbd "C-c d") 'org-time-stamp-inactive)
-(global-set-key (kbd "C-c D") (lambda () (interactive) (org-insert-time-stamp (current-time) t)))
+(global-set-key (kbd "C-c D") (lambda () (interactive) (org-insert-time-stamp (current-time) t t)))
 (global-set-key (kbd "s-s") 'evil-avy-goto-char-timer)
 (global-set-key (kbd "s-f") 'evil-avy-goto-line)
 (global-set-key (kbd "s-d") 'evil-multiedit-match-and-next)
-(global-set-key (kbd "s-D") 'evil-multiedit-match-and-prev)
+(global-set-key (kbd "s-r") 'evil-multiedit-match-and-prev)
+(global-set-key (kbd "s-D") 'evil-multiedit-match-all)
 
 
 ;; Swap doom capture and scratch bindings
