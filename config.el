@@ -245,6 +245,7 @@
          (directory-files-recursively "~/notebook/home/" "\\.org$")
          (list "~/notebook/notes.org" "~/notebook/tasks.org")))
   (setq org-refile-targets '((org-agenda-files :maxlevel . 2)))
+  ;; (setq org-refile-targets (directory-files-recursively "~/notebook/projects/" "\\.org$"))
   (setq org-refile-allow-creating-parent-nodes 'confirm)
   (setq org-image-actual-width 300)
   (map! :map org-mode-map
