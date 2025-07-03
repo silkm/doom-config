@@ -296,7 +296,7 @@
                               (lambda (f)
                                 (string-match "\\.org$" f))))
             "Progress")
-           "* %^{Task name}\n%U\n\n*Description*\n%?\n\n*Definition of Done*\n\n** Steps"
+           "* %^{Task name}\n%U\n\n*Description*\n%?\n\n*Definition of Done*\n"
            :empty-lines 1)
 
           ("l" "Maintenance Log" entry (file+headline "~/notebook/notes.org" "Maintenance")
