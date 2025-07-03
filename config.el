@@ -313,9 +313,12 @@
       ;; Set up refile targets temporarily
       (let ((pos (save-excursion
                    (find-file selected-file)
-                   (org-find-exact-headline-in-buffer "Tasks"))))
+                   (org-find-exact-headline-in-buffer "Tasks")))
+            (orig-buffer (current-buffer)))
         ;; Refile to the selected file under Tasks
-        (org-refile nil nil (list "Tasks" selected-file nil pos)))))
+        (org-refile nil nil (list "Tasks" selected-file nil pos))
+        (org-save-all-org-buffers)
+        (switch-to-buffer orig-buffer))))
   ;; (defun my/refile-to-project-tasks ()
   ;;   "Refile current heading to a selected project file under * Tasks heading."
   ;;   (interactive)
@@ -457,6 +460,10 @@
         "C-S-RET"      #'+org/insert-item-above-edit
         "S-s-<return>" #'+org/insert-item-above-edit
         "C-c l" #'org-insert-checkbox)
+
+  (map! :map org-mode-map
+        :localleader
+        "r p" #'my/refile-to-project-tasks)
 
   (map! :after evil-org
         :map evil-org-mode-map
