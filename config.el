@@ -222,7 +222,7 @@
 
 ;; avy reduce the timer
 (after! avy
-  (setq avy-timeout-seconds 0.25)
+  (setq avy-timeout-seconds 0.2)
   (defun avy-action-exchange (pt)
     "Exchange sexp at PT with the one at point."
     (set-mark pt)
@@ -235,10 +235,14 @@
   (setq evil-auto-indent nil))
 
 
+(after! tramp
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
+
+
 (after! org
   (setq electric-indent-mode nil)
+  (setq electric-pair-mode t)
   (setq org-startup-folded 'content)
-  ;; (setq org-tags-column -77)
   (setq org-agenda-files
         (append
          (directory-files-recursively "~/notebook/projects/" "\\.org$")
@@ -249,8 +253,28 @@
   ;; (setq org-refile-targets (directory-files-recursively "~/notebook/projects/" "\\.org$"))
   (setq org-refile-allow-creating-parent-nodes 'confirm)
   (setq org-image-actual-width 300)
+  (setq org-tags-exclude-from-inheritance '("@open"))
+  (setq org-tag-faces
+        '(("@open" . (:foreground "#065f46" :background "#d1fae5" :weight bold))
+          ("@closed" . (:foreground "#7c2d12" :background "#fed7aa" :weight bold))))
+  (defun my/toggle-open-closed-tag ()
+    "Toggle between @open and @closed tags on the current headline."
+    (interactive)
+    (save-excursion
+      (org-back-to-heading t)
+      (let ((tags (org-get-tags)))
+        (cond
+         ;; If has @open, remove it and add @closed
+         ((member "@open" tags)
+          (org-toggle-tag "@open" 'off)
+          (org-toggle-tag "@closed" 'on))
+         ;; If has @closed, remove it and add @open
+         ((member "@closed" tags)
+          (org-toggle-tag "@closed" 'off)
+          (org-toggle-tag "@open" 'on))))))
   (map! :map org-mode-map
         :niv "C-S-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
+
   (setq org-capture-templates
         '(("j" "Journal" entry (file+olp+datetree "~/notebook/notes.org" "Journal")
            "* %^{PROMPT}  :note:\n%u\n\n%?\n"
@@ -276,17 +300,6 @@
                       "~/notebook/projects/"))))
            "#+TITLE: %^{Project title: }\n#+DATE: %U\n#+FILETAGS: %^G\n#+OPTIONS: \\n:t num:nil tags:nil toc:nil ^:nil\n\n%?\n\n* Progress\n\n* Tasks")
 
-          ;; Example that adds a date to the filename
-          ;; ("P" "Project File" plain
-          ;;  (file (lambda ()
-          ;;          (let ((filename (read-string "Filename: ")))
-          ;;            (expand-file-name
-          ;;             (format "%s_%s.org"
-          ;;                     filename
-          ;;                     (format-time-string "%Y%m%d"))
-          ;;             "~/notebook/projects/"))))
-          ;;  "#+TITLE: %^{Project title: }\n#+DATE: %U\n#+FILETAGS: %^G\n#+OPTIONS: \\n:t num:nil tags:nil toc:nil ^:nil\n\n%?\n\n* Progress\n\n* Tasks")
-
           ("p" "Project Task" entry
            (file+headline
             (lambda ()
@@ -302,6 +315,7 @@
           ("l" "Maintenance Log" entry (file+headline "~/notebook/notes.org" "Maintenance")
            "* %^{PROMPT} %^g \n%u\n\n%?\n"
            :empty-lines 1)))
+
   (defun my/refile-to-project-tasks ()
     "Refile current heading to a selected project file under * Tasks heading."
     (interactive)
@@ -319,19 +333,6 @@
         (org-refile nil nil (list "Tasks" selected-file nil pos))
         (org-save-all-org-buffers)
         (switch-to-buffer orig-buffer))))
-  ;; (defun my/refile-to-project-tasks ()
-  ;;   "Refile current heading to a selected project file under * Tasks heading."
-  ;;   (interactive)
-  ;;   (let* ((project-dir "~/notebook/projects/")
-  ;;          (files (directory-files project-dir t ".*\\.org$"))
-  ;;          (file-names (mapcar #'file-name-nondirectory files))
-  ;;          (selected-name (completing-read "Select project file: " file-names nil t))
-  ;;          (selected-file (expand-file-name selected-name project-dir)))
-  ;;     ;; Set up refile targets temporarily
-  ;;     (let ((org-refile-targets `((,selected-file :regexp . "^\\* Tasks")))
-  ;;           (org-refile-use-outline-path nil))
-  ;;       ;; Refile to the selected file under Tasks
-  ;;       (org-refile nil nil (list "Tasks" selected-file)))))
   (defun remove-ispell-completion-at-point ()
     "Disable capf completion-at-point ispell-completion-at-point."
     (setq-local
@@ -459,7 +460,8 @@
         "C-S-<return>" #'+org/insert-item-above-edit
         "C-S-RET"      #'+org/insert-item-above-edit
         "S-s-<return>" #'+org/insert-item-above-edit
-        "C-c l" #'org-insert-checkbox)
+        "C-c l" #'org-insert-checkbox
+        "C-c g" #'my/toggle-open-closed-tag)
 
   (map! :map org-mode-map
         :localleader
@@ -573,6 +575,9 @@
 
 (after! python
   :config
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (setq python-indent-def-block-scale 1)))
   (map! :map python-mode-map
         :n "C-c C-w" #'(lambda () (interactive) (python-shell-send-buffer t))))
 
@@ -610,7 +615,7 @@
                 '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t) ;; [X] autocompletion
                                     :rope (:enabled t)                            ;; [X] refactoring (can swap with lsp rope)
                                     :pylsp_mypy (:enabled t)                      ;; [X] type checking
-                                    :pydocstyle (:enabled t)                      ;; [-] docstring style checking
+                                    :pydocstyle (:enabled t)                      ;; [X] docstring style checking
                                     :ruff (:enabled t :formatEnabled :json-false) ;; [X] linting
                                     :autopep8 (:enabled :json-false)              ;; (ruff) uses pycodestyle to auto format
                                     :yapf (:enabled :json-false)                  ;; (ruff) applies formatting
@@ -634,10 +639,10 @@
   :init
   (setq copilot-indent-offset-warning-disable t)
   (map! :map copilot-mode-map
-        "C-<tab>" #'copilot-accept-completion
-        "C-S-<tab>" #'copilot-accept-completion-by-word
-        "C-n" #'copilot-next-completion
-        "C-p" #'copilot-previous-completion))
+        :i "C-<tab>" #'copilot-accept-completion
+        :i "C-S-<tab>" #'copilot-accept-completion-by-word
+        :i "C-n" #'copilot-next-completion
+        :i "C-p" #'copilot-previous-completion))
 
 
 (use-package! gptel
