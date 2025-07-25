@@ -239,6 +239,10 @@
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 
 
+(after! magit
+  (setq magit-process-popup-time 0))
+
+
 (after! org
   (setq electric-indent-mode nil)
   (setq electric-pair-mode t)
