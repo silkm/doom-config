@@ -58,3 +58,7 @@
 (package! gptel :recipe (:nonrecursive t))
 (package! dape)
 (package! breadcrumb)
+(package! evil-textobj-line)
+(package! evil-textobj-syntax)
+(package! flymake-eslint)
+;; (package! exec-path-from-shell)

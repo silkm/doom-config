@@ -100,10 +100,17 @@
   (breadcrumb-mode t))
 
 
-;; KEYBINDS
+;; Add evil motions
+;; vih / vah visual around highlight
+;; vil / val visual around line
+;; hmm but the l keys aren't working in treesitter mode
+;; will need to set the keybind there
+(use-package! evil-textobj-line)
+(use-package! evil-textobj-syntax)
 
 
 ;; Globals
+(global-set-key (kbd "C-g") 'keyboard-quit)
 (global-set-key (kbd "C-;") 'other-window)
 (global-set-key (kbd "C-:") 'previous-multiframe-window)
 (global-set-key (kbd "C-c t") 'transpose-frame)
@@ -115,6 +122,8 @@
 (global-set-key (kbd "s-d") 'evil-multiedit-match-and-next)
 (global-set-key (kbd "s-r") 'evil-multiedit-match-and-prev)
 (global-set-key (kbd "s-D") 'evil-multiedit-match-all)
+(global-set-key (kbd "s-o") 'occur)
+(global-set-key (kbd " ") (lambda () (interactive) (insert " ")))
 
 
 ;; Swap doom capture and scratch bindings
@@ -237,6 +246,12 @@
 
 (after! tramp
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
+
+
+;; (use-package! exec-path-from-shell
+;;   :config
+;;   (when (memq window-system '(mac ns x))
+;;     (exec-path-from-shell-initialize)))
 
 
 (after! magit
@@ -457,6 +472,11 @@
     (interactive)
     (insert "- [ ] ")
     (evil-insert-state))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)
+     (jupyter . t)))
   (map! :map org-mode-map
         "C-<return>" #'+org/insert-item-below-edit
         "C-RET"      #'+org/insert-item-below-edit
@@ -586,6 +606,17 @@
         :n "C-c C-w" #'(lambda () (interactive) (python-shell-send-buffer t))))
 
 
+(after! treesit
+  (setq treesit-language-source-alist
+        '((typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src" nil nil)
+          (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src" nil nil))))
+
+(after! flymake-eslint
+  (add-hook 'typescript-mode-hook #'flymake-eslint-enable)
+  (add-hook 'typescript-tsx-mode-hook #'flymake-eslint-enable)
+  (add-hook 'js-mode-hook #'flymake-eslint-enable)
+  (add-hook 'jsx-mode-hook #'flymake-eslint-enable))
+
 ;; Apheleia set to run ruff format with no quote changing
 ;; and no line length splitting. These can be handled by the
 ;; pre-commit steps instead.
@@ -612,9 +643,11 @@
 (after! eglot
   (setq eglot-code-action-indicator "*")
   (add-to-list 'eglot-server-programs
-               ;; '(python-mode . ("ruff" "server"))))
-               '(python-mode . ("pylsp"))
+               '(python-mode . ("pylsp")))
+  (add-to-list 'eglot-server-programs
                '(python-ts-mode . ("pylsp")))
+  (add-to-list 'eglot-server-programs
+               '((tsx-mode typescript-tsx-mode) . ("typescript-language-server" "--stdio")))
   (setq-default eglot-workspace-configuration
                 '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t) ;; [X] autocompletion
                                     :rope (:enabled t)                            ;; [X] refactoring (can swap with lsp rope)
