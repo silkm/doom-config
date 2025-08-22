@@ -134,6 +134,8 @@
 (global-set-key (kbd "s-D") 'evil-multiedit-match-all)
 (global-set-key (kbd "s-o") 'occur)
 (global-set-key (kbd " ") (lambda () (interactive) (insert " ")))
+(global-unset-key (kbd "<C-wheel-up>"))
+(global-unset-key (kbd "<C-wheel-down>"))
 
 
 ;; Swap doom capture and scratch bindings
