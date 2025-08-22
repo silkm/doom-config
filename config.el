@@ -94,6 +94,16 @@
 (setq confirm-kill-emacs nil)
 
 
+;; Enable scroll bar
+;; Fixes the mode line from being truncated
+;; (scroll-bar-mode 'right)
+(setq all-the-icons-scale-factor 0.9)
+(after! doom-modeline
+  (doom-modeline-def-modeline 'main
+    '(bar matches buffer-info remote-host buffer-position parrot selection-info)
+    '(misc-info minor-modes check input-method buffer-encoding major-mode process vcs "  ")))
+
+
 ;; Enable breadcrumb-mode
 (use-package! breadcrumb
   :config
