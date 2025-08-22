@@ -675,7 +675,7 @@
 
 
 (after! dape
-  :init
+  :config
   (setq dape-buffer-window-arrangement 'right
         dape-inlay-hints nil)
   (map! :leader
@@ -683,7 +683,7 @@
 
 
 (after! copilot
-  :init
+  :config
   (setq copilot-indent-offset-warning-disable t)
   (map! :map copilot-mode-map
         :i "C-<tab>" #'copilot-accept-completion
@@ -703,6 +703,6 @@
 
 (after! plantuml-mode
   :init
-  (setq plantuml-jar-path "/Users/msilk/software/plantuml/plantuml-1.2025.2.jar"
-        plantuml-executable-path "/opt/homebrew/bin/plantuml"
+  (setq plantuml-jar-path (expand-file-name "~/software/plantuml/plantuml-1.2025.2.jar")
+        plantuml-executable-path (executable-find "plantuml")
         plantuml-default-exec-mode 'executable))
