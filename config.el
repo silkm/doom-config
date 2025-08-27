@@ -94,9 +94,7 @@
 (setq confirm-kill-emacs nil)
 
 
-;; Enable scroll bar
-;; Fixes the mode line from being truncated
-;; (scroll-bar-mode 'right)
+;; Fix modeline being truncated by adding some padding
 (setq all-the-icons-scale-factor 0.9)
 (after! doom-modeline
   (doom-modeline-def-modeline 'main
