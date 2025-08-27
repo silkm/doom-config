@@ -278,7 +278,6 @@
 
 (after! org
   (setq electric-indent-mode nil)
-  (setq electric-pair-mode t)
   (setq org-startup-folded 'content)
   (setq org-agenda-files
         (append
