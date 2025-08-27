@@ -102,10 +102,18 @@
     '(misc-info minor-modes check input-method buffer-encoding major-mode process vcs "  ")))
 
 
+;; Add transparency
+(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+
+
 ;; Enable breadcrumb-mode
 (use-package! breadcrumb
   :config
   (breadcrumb-mode t))
+
+
+;; Reduce repeat key delay
 
 
 ;; Add evil motions
