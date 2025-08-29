@@ -664,6 +664,8 @@
                '((tsx-mode typescript-tsx-mode) . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs
                '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
+  (add-to-list 'eglot-server-programs
+               '(haskell-ts-mode . ("haskell-language-server-wrapper" "--lsp")))
   (setq-default eglot-workspace-configuration
                 '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t) ;; [X] autocompletion
                                     :rope (:enabled t)                            ;; [X] refactoring (can swap with lsp rope)
