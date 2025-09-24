@@ -236,6 +236,8 @@
 (custom-set-faces!  `(tree-sitter-hl-face:function.call :foreground ,(doom-color 'blue)))
 (custom-set-faces!  `(tree-sitter-hl-face:function.macro :foreground ,(doom-color 'blue)))
 (custom-set-faces!  `(tree-sitter-hl-face:function.special :foreground ,(doom-color 'blue)))
+(custom-set-faces!  `(font-lock-function-name-face :foreground ,(doom-color 'blue)))
+;; (custom-set-faces!  `(font-lock-function-call-face :foreground ,(doom-color 'blue)))
 
 
 ;; Cursor colours
