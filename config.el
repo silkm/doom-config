@@ -623,8 +623,18 @@
 
 (after! treesit
   (setq treesit-language-source-alist
-        '((typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src" nil nil)
+        '((elisp "https://github.com/Wilfred/tree-sitter-elisp")
+          (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src" nil nil)
           (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src" nil nil))))
+
+
+(after! flymake
+  (set-face-attribute 'flymake-error nil
+                      :underline '(:style line :color "red"))
+  (set-face-attribute 'flymake-warning nil
+                      :underline '(:style line :color "orange"))
+  (set-face-attribute 'flymake-note nil
+                      :underline '(:style line :color "blue")))
 
 
 (after! flymake-eslint
