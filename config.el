@@ -107,13 +107,21 @@
 (add-to-list 'default-frame-alist '(alpha . (95 . 95)))
 
 
+;; Function to adjust transparency
+(defun my-set-frame-transparency ()
+  "Prompt for alpha value and set frame transparency."
+  (interactive)
+  (let ((alpha (read-number "Enter alpha value (0-100): " 95)))
+    (when (and (>= alpha 0) (<= alpha 100))
+      (set-frame-parameter (selected-frame) 'alpha `(,alpha . ,alpha))
+      (add-to-list 'default-frame-alist `(alpha . (,alpha . ,alpha)))
+      (message "Frame transparency set to %d" alpha))))
+
+
 ;; Enable breadcrumb-mode
 (use-package! breadcrumb
   :config
   (breadcrumb-mode t))
-
-
-;; Reduce repeat key delay
 
 
 ;; Add evil motions
