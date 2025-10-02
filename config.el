@@ -734,3 +734,49 @@
   (setq plantuml-jar-path (expand-file-name "~/software/plantuml/plantuml-1.2025.2.jar")
         plantuml-executable-path (executable-find "plantuml")
         plantuml-default-exec-mode 'executable))
+
+
+(defun update-silk-ssh-config ()
+  "Update SSH config entries for hosts starting with silk- in ~/.ssh/config."
+  (interactive)
+  (let ((config-file (expand-file-name "~/.ssh/config")))
+    (unless (file-exists-p config-file)
+      (error "SSH config file not found: %s" config-file))
+    (with-current-buffer (find-file-noselect config-file)
+      (save-excursion
+        (goto-char (point-min))
+        (while (re-search-forward "^Host \\(.*silk-[^ \t\n]+.*\\)$" nil t)
+          (let ((original-line (match-string 1))
+                (line-start (match-beginning 0)))
+            ;; Extract the silk- hostname
+            (when (string-match "\\(silk-[^ \t\n]+\\)" original-line)
+              (let* ((full-host (match-string 1 original-line))
+                     (short-alias (car (split-string full-host "\\."))))
+                ;; Check if short alias is already in the line as a separate host
+                ;; Look for it preceded by space or at start, and followed by space or end
+                (unless (or (string-match-p (concat "^" (regexp-quote short-alias) "\\([ \t]\\|$\\)") original-line)
+                            (string-match-p (concat "[ \t]" (regexp-quote short-alias) "\\([ \t]\\|$\\)") original-line))
+                  ;; Replace the line with updated version
+                  (goto-char line-start)
+                  (delete-region (point) (line-end-position))
+                  (insert (format "Host %s %s" original-line short-alias)))
+
+                ;; Now handle User jupyter
+                (forward-line 1)
+                (let ((entry-start (point))
+                      (next-host-pos (save-excursion
+                                       (if (re-search-forward "^Host " nil t)
+                                           (match-beginning 0)
+                                         (point-max)))))
+                  ;; Check for User jupyter in this entry
+                  (save-excursion
+                    (goto-char entry-start)
+                    (unless (re-search-forward "^[ \t]*User jupyter" next-host-pos t)
+                      ;; Add User jupyter at the beginning of the entry
+                      (goto-char entry-start)
+                      (insert "    User jupyter\n")))
+                  ;; Continue search from end of this entry
+                  (goto-char next-host-pos)
+                  (forward-line -1)))))))
+      (save-buffer)
+      (message "Updated ~/.ssh/config"))))
