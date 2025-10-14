@@ -742,7 +742,7 @@
         plantuml-default-exec-mode 'executable))
 
 
-(defun update-silk-ssh-config ()
+(defun my-update-silk-ssh-config ()
   "Update SSH config entries for hosts starting with silk- in ~/.ssh/config."
   (interactive)
   (let ((config-file (expand-file-name "~/.ssh/config")))
