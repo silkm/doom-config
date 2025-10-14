@@ -185,7 +185,8 @@
       "g p"   #'flymake-goto-prev-error)
 
 (map! :map evil-motion-state-map
-      "[ e" #'flymake-goto-prev-error)
+      "[ e" #'flymake-goto-prev-error
+      "C-e" #'doom/forward-to-last-non-comment-or-eol)
 
 (map!
  "M-g M-p" #'flymake-goto-prev-error
