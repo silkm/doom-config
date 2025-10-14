@@ -170,6 +170,12 @@
 (map! :i "C-k" #'kill-line)
 
 
+;; Map custom function calls to SPC-l
+(map! :leader
+      :prefix "l"
+      "t" #'my-set-frame-transparency
+      "s" #'my-update-silk-ssh-config)
+
 ;; Bind flymake-goto-prev-error to previous error keybinds
 (map! :map esc-map
       "g M-p" #'flymake-goto-prev-error)
