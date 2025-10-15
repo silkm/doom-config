@@ -107,6 +107,12 @@
 (add-to-list 'default-frame-alist '(alpha . (95 . 95)))
 
 
+;; Disable constant git querying over tramp
+(setq vc-ignore-dir-regexp
+      (format "\\(%s\\)\\|\\(%s\\)"
+              vc-ignore-dir-regexp
+              tramp-file-name-regexp))
+
 ;; Function to adjust transparency
 (defun my-set-frame-transparency ()
   "Prompt for alpha value and set frame transparency."
