@@ -750,12 +750,56 @@
 
 
 (defun my-update-silk-ssh-config ()
-  "Update SSH config entries for hosts starting with silk- in ~/.ssh/config."
+  "Update SSH config entries for hosts starting with silk- in ~/.ssh/config.
+   Removes duplicate entries, keeping the simpler one from Google."
   (interactive)
   (let ((config-file (expand-file-name "~/.ssh/config")))
     (unless (file-exists-p config-file)
       (error "SSH config file not found: %s" config-file))
     (with-current-buffer (find-file-noselect config-file)
+      ;; First pass: collect all silk- entries and identify duplicates to delete
+      (let ((entries '())
+            (to-delete '()))
+        (save-excursion
+          (goto-char (point-min))
+          (while (re-search-forward "^Host \\(.*silk-[^ \t\n]+.*\\)$" nil t)
+            (let* ((host-line (match-string 1))
+                   (line-pos (match-beginning 0))
+                   (entry-end (save-excursion
+                                (if (re-search-forward "^Host " nil t)
+                                    (match-beginning 0)
+                                  (point-max)))))
+              ;; Extract the full silk- hostname
+              (when (string-match "\\(silk-[^ \t\n]+\\)" host-line)
+                (let ((long-hostname (match-string 1 host-line)))
+                  (push (list long-hostname host-line line-pos entry-end) entries))))))
+
+        ;; Group entries by long hostname to find duplicates
+        (let ((hostname-map (make-hash-table :test 'equal)))
+          (dolist (entry entries)
+            (let* ((long-hostname (car entry))
+                   (existing (gethash long-hostname hostname-map)))
+              (puthash long-hostname (cons entry existing) hostname-map)))
+
+          ;; For duplicates, mark the edited entries (with aliases) for deletion
+          (maphash
+           (lambda (long-hostname entry-list)
+             (when (> (length entry-list) 1)
+               ;; Multiple entries with same long hostname - delete the ones with aliases
+               (dolist (entry entry-list)
+                 (let ((host-line (nth 1 entry))
+                       (line-pos (nth 2 entry))
+                       (entry-end (nth 3 entry)))
+                   ;; Delete if Host line has space after hostname (i.e., has aliases)
+                   (when (string-match (concat "^" (regexp-quote long-hostname) "[ \t]+") host-line)
+                     (push (cons line-pos entry-end) to-delete))))))
+           hostname-map))
+
+        ;; Delete marked entries in reverse order to preserve positions
+        (dolist (region (sort to-delete (lambda (a b) (> (car a) (car b)))))
+          (delete-region (car region) (cdr region))))
+
+      ;; Second pass: update remaining entries with aliases and User jupyter
       (save-excursion
         (goto-char (point-min))
         (while (re-search-forward "^Host \\(.*silk-[^ \t\n]+.*\\)$" nil t)
@@ -765,15 +809,13 @@
             (when (string-match "\\(silk-[^ \t\n]+\\)" original-line)
               (let* ((full-host (match-string 1 original-line))
                      (short-alias (car (split-string full-host "\\."))))
-                ;; Check if short alias is already in the line as a separate host
-                ;; Look for it preceded by space or at start, and followed by space or end
+                ;; Check if short alias is already in the line
                 (unless (or (string-match-p (concat "^" (regexp-quote short-alias) "\\([ \t]\\|$\\)") original-line)
                             (string-match-p (concat "[ \t]" (regexp-quote short-alias) "\\([ \t]\\|$\\)") original-line))
                   ;; Replace the line with updated version
                   (goto-char line-start)
                   (delete-region (point) (line-end-position))
                   (insert (format "Host %s %s" original-line short-alias)))
-
                 ;; Now handle User jupyter
                 (forward-line 1)
                 (let ((entry-start (point))
