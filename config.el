@@ -258,8 +258,8 @@
 (custom-set-faces!  `(tree-sitter-hl-face:function.macro :foreground ,(doom-color 'blue)))
 (custom-set-faces!  `(tree-sitter-hl-face:function.special :foreground ,(doom-color 'blue)))
 (custom-set-faces!  `(font-lock-function-name-face :foreground ,(doom-color 'blue)))
-;; (custom-set-faces!  `(font-lock-function-call-face :foreground ,(doom-color 'blue)))
-
+;; (custom-set-faces!  `(font-lock-variable-use-face :foreground ,(doom-color 'white))) ;; alleviates the purple in python
+;; (custom-set-faces!  `(font-lock-function-call-face :foreground ,(doom-color 'blue) :slant italic)) ;; option to italicise functions
 
 ;; Cursor colours
 (setq evil-normal-state-cursor '(box "#fce9d9"))
