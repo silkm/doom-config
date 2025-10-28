@@ -42,7 +42,7 @@
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type t)
+(setq display-line-numbers-type 'relative)
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -398,9 +398,9 @@
      completion-at-point-functions
      (remove 'ispell-completion-at-point completion-at-point-functions)))
   (add-hook 'org-mode-hook #'remove-ispell-completion-at-point)
-  (add-hook 'org-mode-hook
-            (lambda ()
-              (display-line-numbers-mode -1)))
+  ;; (add-hook 'org-mode-hook
+  ;;           (lambda ()
+  ;;             (display-line-numbers-mode -1)))
   ;; Redefine org--insert item to add newlines
   (defun +org--insert-item-edit (direction)
     (let ((context (org-element-lineage
