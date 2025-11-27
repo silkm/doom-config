@@ -117,7 +117,7 @@
 (defun my-set-frame-transparency ()
   "Prompt for alpha value and set frame transparency."
   (interactive)
-  (let ((alpha (read-number "Enter alpha value (0-100): " 95)))
+  (let ((alpha (read-number "Enter alpha value (0-100): " 100)))
     (when (and (>= alpha 0) (<= alpha 100))
       (set-frame-parameter (selected-frame) 'alpha `(,alpha . ,alpha))
       (add-to-list 'default-frame-alist `(alpha . (,alpha . ,alpha)))
@@ -626,7 +626,7 @@
   (map! :map ess-mode-map
         :nv "<C-return>" #'ess-eval-line-and-step
         :n "C-c m" #'ess-reset-ansi-colours
-        "C-c h" #'ess-insert-header)
+        "C-c l" #'ess-insert-header)
   :config
   (defun ess-reset-ansi-colours ()
     (interactive)
