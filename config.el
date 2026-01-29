@@ -312,6 +312,80 @@
          (directory-files-recursively "~/notebook/docs/" "\\.org$")
          (directory-files-recursively "~/notebook/home/" "\\.org$")
          (list "~/notebook/notes.org" "~/notebook/tasks.org")))
+  (setq org-agenda-remove-tags t)
+  (setq org-agenda-prefix-format
+      '((agenda . " %i %-12:c%?-12t% s")
+        (todo . " %i %-25:c")
+        (tags . " %i %-25:c")  ; Increase this number for more space
+        (search . " %i %-12:c")))
+
+  ;; Agenda - colourise open tickets
+  ;; Files with no open tags will appear white
+  (defvar my/category-color-cache nil
+    "Cached category-to-color mapping.")
+
+  (defun my/get-open-tag-categories ()
+    "Get all unique categories from entries tagged with @open."
+    (let ((categories '()))
+      (org-map-entries
+       (lambda ()
+       (let ((cat (org-get-category)))
+         (unless (member cat categories)
+           (push cat categories))))
+       "+@open" 'agenda)
+      (sort categories #'string<)))
+
+  (defun my/generate-color-palette (n)
+    "Generate N distinct colors using HSL color space."
+    (let ((colors '())
+          (golden-ratio 0.618033988749895))
+      (dotimes (i n)
+        (let* ((hue (mod (* i golden-ratio) 1.0))
+               (saturation 0.6)
+               (lightness 0.65)
+               (color (color-hsl-to-rgb hue saturation lightness)))
+          (push (apply #'color-rgb-to-hex color) colors)))
+      (nreverse colors)))
+
+  (defun my/get-or-generate-category-colors ()
+    "Get cached colors or generate new ones if categories changed."
+    (let ((current-categories (my/get-open-tag-categories)))
+      (unless (and my/category-color-cache
+                   (equal (mapcar #'car my/category-color-cache)
+                        current-categories))
+        (setq my/category-color-cache
+              (let ((colors (my/generate-color-palette (length current-categories))))
+                (cl-loop for cat in current-categories
+                         for color in colors
+                         collect (cons cat color)))))
+      my/category-color-cache))
+
+  (defun my/colorize-open-tags ()
+    "Colorize agenda items by category, only when viewing @open tags."
+    (when (and (derived-mode-p 'org-agenda-mode)
+               (save-excursion
+               (goto-char (point-min))
+               (re-search-forward "Headlines with TAGS match: @open" nil t)))
+      (save-excursion
+        (goto-char (point-min))
+        (let ((category-colors (my/get-or-generate-category-colors)))
+          (dolist (cat-color category-colors)
+            (goto-char (point-min))
+            (while (re-search-forward (concat "^  " (regexp-quote (car cat-color)) ":") nil t)
+              (add-text-properties
+               (line-beginning-position)
+               (line-end-position)
+               `(face (:foreground ,(cdr cat-color))))))))))
+
+  ;; Add the hook
+  (add-hook 'org-agenda-finalize-hook #'my/colorize-open-tags)
+
+  ;; Add a shortcut to search for open tags
+  (map! :leader
+        :prefix "o a"
+        :desc "View open tickets"
+        "o" (lambda () (interactive) (org-tags-view nil "@open")))
+
   (setq org-refile-targets '((org-agenda-files :maxlevel . 2)))
   ;; (setq org-refile-targets (directory-files-recursively "~/notebook/projects/" "\\.org$"))
   (setq org-refile-allow-creating-parent-nodes 'confirm)
