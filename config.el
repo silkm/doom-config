@@ -107,8 +107,8 @@
 
 
 ;; Add transparency
-(set-frame-parameter (selected-frame) 'alpha '(95 . 95))
-(add-to-list 'default-frame-alist '(alpha . (95 . 95)))
+(set-frame-parameter (selected-frame) 'alpha '(100 . 100))
+(add-to-list 'default-frame-alist '(alpha . (100 . 100)))
 
 
 ;; Disable constant git querying over tramp
@@ -121,7 +121,7 @@
 (defun my-set-frame-transparency ()
   "Prompt for alpha value and set frame transparency."
   (interactive)
-  (let ((alpha (read-number "Enter alpha value (0-100): " 100)))
+  (let ((alpha (read-number "Enter alpha value (0-100): " 95)))
     (when (and (>= alpha 0) (<= alpha 100))
       (set-frame-parameter (selected-frame) 'alpha `(,alpha . ,alpha))
       (add-to-list 'default-frame-alist `(alpha . (,alpha . ,alpha)))
