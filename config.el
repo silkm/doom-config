@@ -394,8 +394,9 @@
   (setq org-tag-faces
         '(("@open" . (:foreground "#065f46" :background "#d1fae5" :weight bold))
           ("@closed" . (:foreground "#7c2d12" :background "#fed7aa" :weight bold))))
+
   (defun my/toggle-open-closed-tag ()
-    "Toggle between @open and @closed tags on the current headline."
+    "Cycle between @open, @closed, and no open/closed tag on the current headline."
     (interactive)
     (save-excursion
       (org-back-to-heading t)
@@ -405,10 +406,15 @@
          ((member "@open" tags)
           (org-toggle-tag "@open" 'off)
           (org-toggle-tag "@closed" 'on))
-         ;; If has @closed, remove it and add @open
+         ;; If has @closed, remove it (no tag state)
          ((member "@closed" tags)
-          (org-toggle-tag "@closed" 'off)
+          (org-toggle-tag "@closed" 'off))
+         ;; If has neither, add @open
+         (t
           (org-toggle-tag "@open" 'on))))))
+
+  (setq org-export-initial-scope 'subtree)
+
   (map! :map org-mode-map
         :niv "C-S-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
 
