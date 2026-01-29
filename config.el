@@ -87,6 +87,10 @@
 ;; =============
 
 
+;; LOADS
+(load! "secrets.el")
+
+
 ;; BASICS
 
 
