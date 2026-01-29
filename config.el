@@ -443,7 +443,7 @@
                       "~/notebook/projects/"))))
            "#+TITLE: %^{Project title: }\n#+DATE: %U\n#+FILETAGS: %^G\n#+OPTIONS: \\n:t num:nil tags:nil toc:nil ^:nil\n\n%?\n\n* Progress\n\n* Tasks")
 
-          ("p" "Project Task" entry
+          ("p" "Project Ticket" entry
            (file+headline
             (lambda ()
               (read-file-name "Select project file: "
@@ -452,7 +452,7 @@
                               (lambda (f)
                                 (string-match "\\.org$" f))))
             "Progress")
-           "* %^{Task name} :@open:\n%U\n\n*Description*\n%?\n\n*Definition of Done*\n"
+           "* %^{Task name} :@open:\n:PROPERTIES:\n:CREATED: %U\n:STORY_POINTS: %^{Story Points|3}\n:END:\n\n*Description*\n%?\n\n*Definition of Done*\n"
            :empty-lines 1)
 
           ("l" "Maintenance Log" entry (file+headline "~/notebook/notes.org" "Maintenance")
