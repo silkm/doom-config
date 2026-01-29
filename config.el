@@ -590,7 +590,7 @@
     "Inserts a new heading, table cell or item below the current one."
     (interactive "p")
     (dotimes (_ count) (+org--insert-item-edit 'above)))
-  (defun org-insert-checkbox ()
+  (defun my/org-insert-checkbox ()
     "Insert a checkbox - [ ] and enter insert mode."
     (interactive)
     (insert "- [ ] ")
@@ -607,8 +607,8 @@
         "C-S-<return>" #'+org/insert-item-above-edit
         "C-S-RET"      #'+org/insert-item-above-edit
         "S-s-<return>" #'+org/insert-item-above-edit
-        "C-c l" #'org-insert-checkbox
-        "C-c g" #'my/toggle-open-closed-tag)
+        "C-c l" #'my/org-insert-checkbox
+        "C-c C-;" #'my/toggle-open-closed-tag)
 
   (map! :map org-mode-map
         :localleader
