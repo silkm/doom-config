@@ -413,6 +413,50 @@
          (t
           (org-toggle-tag "@open" 'on))))))
 
+  (defun my/jira-create-ticket-from-headline ()
+    "Create Jira URL and open rendered HTML description in browser."
+    (interactive)
+    (require 'ox-html)
+
+    (let* ((base-url "https://cpg-populationanalysis.atlassian.net/secure/CreateIssueDetails!init.jspa")
+
+           ;; --- 1. GET DATA ---
+           (title (org-get-heading t t t t))
+           (points (org-entry-get (point) "STORY_POINTS"))
+
+           (deadline-time (org-get-deadline-time (point)))
+           (deadline-str (when deadline-time
+                         (format-time-string "%d/%b/%y" deadline-time)))
+
+           (program-option-id (or (org-entry-get (point) "PROGRAM_ID")
+                                my-jira-default-program-id))
+
+           ;; --- 2. EXPORT TO FILE (Subtree Only) ---
+           (filename (concat (make-temp-file "jira-export-") ".html")))
+
+      ;; Export the specific subtree to the temp file
+      (org-export-to-file 'html filename nil t nil t)
+
+      ;; --- 3. CONSTRUCT URL ---
+      (let ((url-params
+             (concat
+            "?pid=" my-jira-project-id
+            "&issuetype=" my-jira-issuetype-id
+            "&assignee=" my-jira-account-id
+            "&summary=" (url-hexify-string title)
+            "&" my-jira-points-field-id "=" (or points "3")
+            "&" my-jira-program-field-id "=" program-option-id
+            (if deadline-str (concat "&duedate=" deadline-str) ""))))
+
+        ;; --- 4. LAUNCH BOTH TABS ---
+        ;; Open the local HTML file (Rendered view)
+        (browse-url-of-file filename)
+
+        ;; Open the Jira Link
+        (browse-url (concat base-url url-params))
+
+        (message "Opened Jira ticket creation."))))
+
   (setq org-export-initial-scope 'subtree)
 
   (map! :map org-mode-map
@@ -452,7 +496,7 @@
                               (lambda (f)
                                 (string-match "\\.org$" f))))
             "Progress")
-           "* %^{Task name} :@open:\n:PROPERTIES:\n:CREATED: %U\n:STORY_POINTS: %^{Story Points|3}\n:END:\n\n*Description*\n%?\n\n*Definition of Done*\n"
+           "* %^{Task name} :@open:\n:PROPERTIES:\n:CREATED: %U\n:STORY_POINTS: %^{Story Points|3}\n:JIRA_URL:\n:END:\n\n*Description*\n%?\n\n*Definition of Done*\n"
            :empty-lines 1)
 
           ("l" "Maintenance Log" entry (file+headline "~/notebook/notes.org" "Maintenance")
@@ -608,7 +652,8 @@
         "C-S-RET"      #'+org/insert-item-above-edit
         "S-s-<return>" #'+org/insert-item-above-edit
         "C-c l" #'my/org-insert-checkbox
-        "C-c C-;" #'my/toggle-open-closed-tag)
+        "C-c C-;" #'my/toggle-open-closed-tag
+        "C-c j" #'my/jira-create-ticket-from-headline)
 
   (map! :map org-mode-map
         :localleader
