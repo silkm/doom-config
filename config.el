@@ -457,6 +457,20 @@
 
         (message "Opened Jira ticket creation."))))
 
+  (defun my/jira-render-headline-html ()
+    "Export the current subtree to a temp HTML file and open it in the browser."
+    (interactive)
+    (require 'ox-html)
+
+    (let ((filename (concat (make-temp-file "jira-update-") ".html")))
+
+      ;; Export settings:
+      ;; async=nil, subtreep=t (only current headline), visible-only=nil, body-only=t
+      (org-export-to-file 'html filename nil t nil t)
+
+      (browse-url-of-file filename)
+      (message "Rendered HTML for current headline.")))
+
   (setq org-export-initial-scope 'subtree)
 
   (map! :map org-mode-map
@@ -644,6 +658,7 @@
    '((emacs-lisp . t)
      (python . t)
      (jupyter . t)))
+
   (map! :map org-mode-map
         "C-<return>" #'+org/insert-item-below-edit
         "C-RET"      #'+org/insert-item-below-edit
@@ -654,6 +669,13 @@
         "C-c l" #'my/org-insert-checkbox
         "C-c C-;" #'my/toggle-open-closed-tag
         "C-c j" #'my/jira-create-ticket-from-headline)
+
+  (map! :map org-mode-map
+        :leader
+        :prefix "j"
+        :desc "Create ticket" "c" #'my/jira-create-ticket-from-headline
+        :desc "Update/render" "u" #'my/jira-render-headline-html
+        :desc "Toggle status" "t" #'my/toggle-open-closed-tag)
 
   (map! :map org-mode-map
         :localleader
