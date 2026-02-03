@@ -703,6 +703,11 @@
   (winum-mode))
 
 
+(after! smartparens
+  :config
+  (setq smartparens-strict-mode t))
+
+
 (cond ((eq system-type 'darwin)
        (map! "s-0" #'winum-select-window-0-or-10)
        (map! "s-1" #'winum-select-window-1)
