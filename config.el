@@ -838,6 +838,19 @@
   (load-theme 'doom-opera t))
 
 
+;; workspace switching with SPC-num
+(map! :leader
+      :desc "Switch to workspace 1" "1" #'(lambda () (interactive) (+workspace/switch-to 0))
+      :desc "Switch to workspace 2" "2" #'(lambda () (interactive) (+workspace/switch-to 1))
+      :desc "Switch to workspace 3" "3" #'(lambda () (interactive) (+workspace/switch-to 2))
+      :desc "Switch to workspace 4" "4" #'(lambda () (interactive) (+workspace/switch-to 3))
+      :desc "Switch to workspace 5" "5" #'(lambda () (interactive) (+workspace/switch-to 4))
+      :desc "Switch to workspace 6" "6" #'(lambda () (interactive) (+workspace/switch-to 5))
+      :desc "Switch to workspace 7" "7" #'(lambda () (interactive) (+workspace/switch-to 6))
+      :desc "Switch to workspace 8" "8" #'(lambda () (interactive) (+workspace/switch-to 7))
+      :desc "Switch to workspace 9" "9" #'(lambda () (interactive) (+workspace/switch-to 8))
+      :desc "Switch to last workspace" "0" #'+workspace/switch-to-final)
+
 (after! ess
   (defun ess-insert-header ()
     "Insert R header lines and standard libs."
