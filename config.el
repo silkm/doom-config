@@ -313,11 +313,11 @@
          (directory-files-recursively "~/notebook/home/" "\\.org$")
          (list "~/notebook/notes.org" "~/notebook/tasks.org")))
   (setq org-agenda-remove-tags t)
-  (setq org-agenda-prefix-format
-      '((agenda . " %i %-12:c%?-12t% s")
-        (todo . " %i %-25:c")
-        (tags . " %i %-25:c")  ; Increase this number for more space
-        (search . " %i %-12:c")))
+  ;; (setq org-agenda-prefix-format
+  ;;     '((agenda . " %i %-12:c%?-12t% s")
+  ;;       (todo . " %i %-25:c")
+  ;;       (tags . " %i %-25:c")  ; Increase this number for more space
+  ;;       (search . " %i %-12:c")))
 
   ;; Agenda - colourise open tickets
   ;; Files with no open tags will appear white
@@ -379,6 +379,64 @@
 
   ;; Add the hook
   (add-hook 'org-agenda-finalize-hook #'my/colorize-open-tags)
+
+  ;; 1. Helper: Get Story Points (formatted)
+  (defun my/agenda-story-points ()
+    "Return story points for agenda prefix, e.g. '[3]'"
+    (let ((points (org-entry-get (point) "STORY_POINTS")))
+      (if points
+          (format "[%s]" points)
+        "   "))) ;; Spacer if no points
+
+  ;; 2. Helper: Get Deadline (Relative days)
+  (defun my/agenda-deadline ()
+    "Return relative deadline, e.g. In 3d or Late 2d"
+    (let ((d-str (org-entry-get (point) "DEADLINE")))
+      (if d-str
+          (let* ((d-time (org-time-string-to-time d-str))
+                 (days (- (time-to-days d-time)
+                          (time-to-days (current-time)))))
+            (cond ((< days 0) (format "Late %dd" (abs days)))
+                  ((= days 0) "Due Today")
+                  (t (format "In %dd" days))))
+        "")))
+
+  ;; Update your Prefix Format
+  ;; We updated the 'tags' line to call our new functions %(...)
+  (setq org-agenda-prefix-format
+        '((agenda . " %i %-12:c%?-12t% s")
+          (todo . " %i %-25:c")
+          (tags . " %i %-25:c %-5(my/agenda-story-points) %-11(my/agenda-deadline) ")
+          (search . " %i %-12:c")))
+
+  (setq org-agenda-sorting-strategy
+      '((agenda habit-down time-up priority-down category-keep)
+        (todo   priority-down category-keep)
+        (tags   category-keep priority-down) ;; <--- Primary sort: Category, Secondary: Priority
+        (search category-keep priority-down)))
+
+  (setq org-agenda-custom-commands
+      '(("o" "Project Dashboard"
+         (
+          ;; --- BLOCK 1: Active Tickets ---
+          ;; Inherits global formatting (Width 25, Points, Deadline)
+          (tags "@open"
+                ((org-agenda-overriding-header "Headlines with TAGS match: @open")))
+
+          ;; --- BLOCK 2: All Other TODOs ---
+          (alltodo ""
+                   ((org-agenda-overriding-header "TODOs")
+                    ;; Skip entries already shown above
+                    (org-agenda-skip-function '(org-agenda-skip-entry-if 'regexp ":@open:"))
+
+                    ;; FORMATTING UPDATE:
+                    ;; 1. Changed %-12:c to %-25:c (Matches top block width)
+                    ;; 2. Removed %-6(my/agenda-priority) (Removes priority column)
+                    (org-agenda-prefix-format '((todo . " %i %-25:c ")))
+
+                    (org-agenda-sorting-strategy '(priority-down category-keep))
+                    ))
+          ))))
 
   ;; Add a shortcut to search for open tags
   (map! :leader
@@ -489,7 +547,22 @@
            "* Seminar: %^{PROMPT}  :seminar:\n%u\n\n%?\n"
            :empty-lines 1)
 
-          ("t" "Task" entry (file "~/notebook/tasks.org")
+          ;; ("t" "Task" entry (file "~/notebook/tasks.org")
+          ;;  "* TODO [#B] %i%?\n")
+
+          ("t" "Task" entry
+           (file+headline
+            (lambda ()
+              (let* ((default-tasks (expand-file-name "~/notebook/tasks.org"))
+                     (project-files (directory-files-recursively "~/notebook/projects/" "\\.org$"))
+                     ;; Build an alist for selection: (("tasks.org" . "/path/to/tasks.org") ("proj.org" . "/path/to/proj.org"))
+                     (candidates (cons (cons "tasks.org" default-tasks)
+                                       (mapcar (lambda (f) (cons (file-name-nondirectory f) f))
+                                               project-files))))
+                ;; Prompt user, defaulting to "tasks.org"
+                (let ((selection (completing-read "File task to: " candidates nil t nil nil "tasks.org")))
+                  (cdr (assoc selection candidates)))))
+            "Tasks") ;; <--- The consistent heading we look for in ANY file chosen
            "* TODO [#B] %i%?\n")
 
           ("P" "Project File" plain
@@ -510,7 +583,7 @@
                               (lambda (f)
                                 (string-match "\\.org$" f))))
             "Progress")
-           "* %^{Task name} :@open:\n:PROPERTIES:\n:CREATED: %U\n:STORY_POINTS: %^{Story Points|3}\n:JIRA_URL:\n:END:\n\n*Description*\n%?\n\n*Definition of Done*\n"
+           "* [#%^{Priority|B|A|B|C}] %^{Task name} :@open:\n:PROPERTIES:\n:CREATED: %U\n:STORY_POINTS: %^{Story Points|3}\n:JIRA_URL:\n:END:\n\n*Description*\n%?\n\n*Definition of Done*\n"
            :empty-lines 1)
 
           ("l" "Maintenance Log" entry (file+headline "~/notebook/notes.org" "Maintenance")
