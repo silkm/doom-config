@@ -128,10 +128,10 @@
       (message "Frame transparency set to %d" alpha))))
 
 
-;; Enable breadcrumb-mode
-(use-package! breadcrumb
-  :config
-  (breadcrumb-mode t))
+;; ;; Enable breadcrumb-mode
+;; (use-package! breadcrumb
+;;   :config
+;;   (breadcrumb-mode t))
 
 
 ;; Add evil motions
