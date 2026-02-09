@@ -682,7 +682,7 @@
                      (will-be-todo (and todo-keyword (not (eq todo-type 'done)))))
                 ;; Only ensure newline above new heading if it won't be a TODO
                 (unless (or will-be-todo
-                            (looking-back "\n\n" (max (point-min) (- (point) 2))))
+                            (looking-back "\n[ \t]*\n" (max (point-min) (- (point) 4))))
                   (insert "\n")))
               (insert "\n" (make-string level ?*) " "))
              (`above
@@ -693,7 +693,7 @@
                      (will-be-todo (and todo-keyword (not (eq todo-type 'done)))))
                 ;; Only ensure newline above new heading if it won't be a TODO
                 (unless (or will-be-todo
-                            (looking-back "\n\n" (max (point-min) (- (point) 2))))
+                            (looking-back "\n[ \t]*\n" (max (point-min) (- (point) 4))))
                   (insert "\n")))
               (insert (make-string level ?*) " ")
               (save-excursion (insert "\n"))))
