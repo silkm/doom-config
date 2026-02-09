@@ -711,19 +711,23 @@
       (when (and (bound-and-true-p evil-local-mode)
                  (not (evil-emacs-state-p)))
         (evil-insert 1))))
+
   (defun +org/insert-item-below-edit (count)
     "Inserts a new heading, table cell or item below the current one."
     (interactive "p")
     (dotimes (_ count) (+org--insert-item-edit 'below)))
+
   (defun +org/insert-item-above-edit (count)
     "Inserts a new heading, table cell or item below the current one."
     (interactive "p")
     (dotimes (_ count) (+org--insert-item-edit 'above)))
+
   (defun my/org-insert-checkbox ()
     "Insert a checkbox - [ ] and enter insert mode."
     (interactive)
     (insert "- [ ] ")
     (evil-insert-state))
+
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
@@ -744,9 +748,10 @@
   (map! :map org-mode-map
         :leader
         :prefix "j"
-        :desc "Create ticket" "c" #'my/jira-create-ticket-from-headline
+        :desc "Create ticket" "o" #'my/jira-create-ticket-from-headline
         :desc "Update/render" "u" #'my/jira-render-headline-html
-        :desc "Toggle status" "t" #'my/toggle-open-closed-tag)
+        :desc "Toggle status" "t" #'my/toggle-open-closed-tag
+        :desc "Add Jira URL"  "l" #'my/org-set-jira-url)
 
   (map! :map org-mode-map
         :localleader
