@@ -306,6 +306,11 @@
 (after! org
   (setq electric-indent-mode nil)
   (setq org-startup-folded 'content)
+  (setq org-image-actual-width 300)
+  (setq org-export-initial-scope 'subtree)
+
+  ;; AGENDA
+
   (setq org-agenda-files
         (append
          (directory-files-recursively "~/notebook/projects/" "\\.org$")
@@ -313,14 +318,9 @@
          (directory-files-recursively "~/notebook/home/" "\\.org$")
          (list "~/notebook/notes.org" "~/notebook/tasks.org")))
   (setq org-agenda-remove-tags t)
-  ;; (setq org-agenda-prefix-format
-  ;;     '((agenda . " %i %-12:c%?-12t% s")
-  ;;       (todo . " %i %-25:c")
-  ;;       (tags . " %i %-25:c")  ; Increase this number for more space
-  ;;       (search . " %i %-12:c")))
 
   ;; Agenda - colourise open tickets
-  ;; Files with no open tags will appear white
+
   (defvar my/category-color-cache nil
     "Cached category-to-color mapping.")
 
@@ -377,18 +377,20 @@
                (line-end-position)
                `(face (:foreground ,(cdr cat-color))))))))))
 
-  ;; Add the hook
   (add-hook 'org-agenda-finalize-hook #'my/colorize-open-tags)
 
-  ;; 1. Helper: Get Story Points (formatted)
-  (defun my/agenda-story-points ()
-    "Return story points for agenda prefix, e.g. '[3]'"
-    (let ((points (org-entry-get (point) "STORY_POINTS")))
-      (if points
-          (format "[%s]" points)
-        "   "))) ;; Spacer if no points
+  ;; Agenda - Project view formatting
 
-  ;; 2. Helper: Get Deadline (Relative days)
+  (defun my/agenda-story-points ()
+    "Return story points. Uses [ ] if synced to Jira, - - if unsynced."
+    (let ((points (org-entry-get (point) "STORY_POINTS"))
+          (url (org-entry-get (point) "JIRA_URL")))
+      (if (and points (not (string-blank-p points)))
+          (if (and url (not (string-blank-p url)))
+              (format "[%s]" points)   ;; Synced: Standard Brackets
+            (format "-%s-" points))    ;; Unsynced: Hyphens Warning
+        "   "))) ;; Spacer if no points set
+
   (defun my/agenda-deadline ()
     "Return relative deadline, e.g. In 3d or Late 2d"
     (let ((d-str (org-entry-get (point) "DEADLINE")))
@@ -401,8 +403,8 @@
                   (t (format "In %dd" days))))
         "")))
 
-  ;; Update your Prefix Format
-  ;; We updated the 'tags' line to call our new functions %(...)
+  ;; Agenda - display settings and shortcut
+
   (setq org-agenda-prefix-format
         '((agenda . " %i %-12:c%?-12t% s")
           (todo . " %i %-25:c")
@@ -412,7 +414,7 @@
   (setq org-agenda-sorting-strategy
       '((agenda habit-down time-up priority-down category-keep)
         (todo   priority-down category-keep)
-        (tags   category-keep priority-down) ;; <--- Primary sort: Category, Secondary: Priority
+        (tags   category-keep priority-down)
         (search category-keep priority-down)))
 
   (setq org-agenda-custom-commands
@@ -429,25 +431,20 @@
                     ;; Skip entries already shown above
                     (org-agenda-skip-function '(org-agenda-skip-entry-if 'regexp ":@open:"))
 
-                    ;; FORMATTING UPDATE:
-                    ;; 1. Changed %-12:c to %-25:c (Matches top block width)
-                    ;; 2. Removed %-6(my/agenda-priority) (Removes priority column)
                     (org-agenda-prefix-format '((todo . " %i %-25:c ")))
 
                     (org-agenda-sorting-strategy '(priority-down category-keep))
                     ))
           ))))
 
-  ;; Add a shortcut to search for open tags
   (map! :leader
         :prefix "o a"
         :desc "View open tickets"
         "o" (lambda () (interactive) (org-tags-view nil "@open")))
 
   (setq org-refile-targets '((org-agenda-files :maxlevel . 2)))
-  ;; (setq org-refile-targets (directory-files-recursively "~/notebook/projects/" "\\.org$"))
   (setq org-refile-allow-creating-parent-nodes 'confirm)
-  (setq org-image-actual-width 300)
+
   (setq org-tags-exclude-from-inheritance '("@open"))
   (setq org-tag-faces
         '(("@open" . (:foreground "#065f46" :background "#d1fae5" :weight bold))
@@ -460,16 +457,18 @@
       (org-back-to-heading t)
       (let ((tags (org-get-tags)))
         (cond
-         ;; If has @open, remove it and add @closed
+         ;; @open -> @closed
          ((member "@open" tags)
           (org-toggle-tag "@open" 'off)
           (org-toggle-tag "@closed" 'on))
-         ;; If has @closed, remove it (no tag state)
+         ;; @closed -> none
          ((member "@closed" tags)
           (org-toggle-tag "@closed" 'off))
-         ;; If has neither, add @open
+         ;; none -> @closed
          (t
           (org-toggle-tag "@open" 'on))))))
+
+  ;; Jira ticket exports
 
   (defun my/jira-create-ticket-from-headline ()
     "Create Jira URL and open rendered HTML description in browser."
@@ -478,7 +477,6 @@
 
     (let* ((base-url "https://cpg-populationanalysis.atlassian.net/secure/CreateIssueDetails!init.jspa")
 
-           ;; --- 1. GET DATA ---
            (title (org-get-heading t t t t))
            (points (org-entry-get (point) "STORY_POINTS"))
 
@@ -489,13 +487,12 @@
            (program-option-id (or (org-entry-get (point) "PROGRAM_ID")
                                 my-jira-default-program-id))
 
-           ;; --- 2. EXPORT TO FILE (Subtree Only) ---
            (filename (concat (make-temp-file "jira-export-") ".html")))
 
       ;; Export the specific subtree to the temp file
       (org-export-to-file 'html filename nil t nil t)
 
-      ;; --- 3. CONSTRUCT URL ---
+      ;; Create URL
       (let ((url-params
              (concat
             "?pid=" my-jira-project-id
@@ -506,8 +503,7 @@
             "&" my-jira-program-field-id "=" program-option-id
             (if deadline-str (concat "&duedate=" deadline-str) ""))))
 
-        ;; --- 4. LAUNCH BOTH TABS ---
-        ;; Open the local HTML file (Rendered view)
+        ;; Open the local HTML file
         (browse-url-of-file filename)
 
         ;; Open the Jira Link
@@ -516,7 +512,7 @@
         (message "Opened Jira ticket creation."))))
 
   (defun my/jira-render-headline-html ()
-    "Export the current subtree to a temp HTML file and open it in the browser."
+    "Export ticket to HTML only, for updating tickets in Jira."
     (interactive)
     (require 'ox-html)
 
@@ -528,11 +524,6 @@
 
       (browse-url-of-file filename)
       (message "Rendered HTML for current headline.")))
-
-  (setq org-export-initial-scope 'subtree)
-
-  (map! :map org-mode-map
-        :niv "C-S-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
 
   (setq org-capture-templates
         '(("j" "Journal" entry (file+olp+datetree "~/notebook/notes.org" "Journal")
@@ -547,22 +538,19 @@
            "* Seminar: %^{PROMPT}  :seminar:\n%u\n\n%?\n"
            :empty-lines 1)
 
-          ;; ("t" "Task" entry (file "~/notebook/tasks.org")
-          ;;  "* TODO [#B] %i%?\n")
-
           ("t" "Task" entry
            (file+headline
             (lambda ()
               (let* ((default-tasks (expand-file-name "~/notebook/tasks.org"))
                      (project-files (directory-files-recursively "~/notebook/projects/" "\\.org$"))
-                     ;; Build an alist for selection: (("tasks.org" . "/path/to/tasks.org") ("proj.org" . "/path/to/proj.org"))
+                     ;; Build an alist for selection
                      (candidates (cons (cons "tasks.org" default-tasks)
                                        (mapcar (lambda (f) (cons (file-name-nondirectory f) f))
                                                project-files))))
                 ;; Prompt user, defaulting to "tasks.org"
                 (let ((selection (completing-read "File task to: " candidates nil t nil nil "tasks.org")))
                   (cdr (assoc selection candidates)))))
-            "Tasks") ;; <--- The consistent heading we look for in ANY file chosen
+            "Tasks")
            "* TODO [#B] %i%?\n")
 
           ("P" "Project File" plain
@@ -590,6 +578,17 @@
            "* %^{PROMPT} %^g \n%u\n\n%?\n"
            :empty-lines 1)))
 
+  (defun my/org-set-jira-url ()
+    "Prompt for a Jira URL and save it to the current headline's JIRA_URL property."
+    (interactive)
+    (save-excursion
+      (org-back-to-heading t)
+      (let ((url (string-trim (read-string "Paste Jira URL: "))))
+        (if (string-blank-p url)
+            (message "Cancelled.")
+          (org-entry-put (point) "JIRA_URL" url)
+          (message "Linked ticket to: %s" url)))))
+
   (defun my/refile-to-project-tasks ()
     "Refile current heading to a selected project file under * Tasks heading."
     (interactive)
@@ -607,15 +606,14 @@
         (org-refile nil nil (list "Tasks" selected-file nil pos))
         (org-save-all-org-buffers)
         (switch-to-buffer orig-buffer))))
+
   (defun remove-ispell-completion-at-point ()
     "Disable capf completion-at-point ispell-completion-at-point."
     (setq-local
      completion-at-point-functions
      (remove 'ispell-completion-at-point completion-at-point-functions)))
   (add-hook 'org-mode-hook #'remove-ispell-completion-at-point)
-  ;; (add-hook 'org-mode-hook
-  ;;           (lambda ()
-  ;;             (display-line-numbers-mode -1)))
+
   ;; Redefine org--insert item to add newlines
   (defun +org--insert-item-edit (direction)
     (let ((context (org-element-lineage
@@ -761,6 +759,8 @@
         :i "C-S-<return>" #'+org/insert-item-above-edit
         :n "C-S-<return>" #'+org/insert-item-above-edit))
 
+  (map! :map org-mode-map
+        :niv "C-S-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
 
 (after! org-download
   (setq org-download-method 'download)
