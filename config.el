@@ -277,11 +277,12 @@
 ;; avy reduce the timer
 (after! avy
   (setq avy-timeout-seconds 0.3)
-  (defun avy-action-exchange (pt)
+  (setq avy-all-windows t)
+  (defun my/avy-action-exchange (pt)
     "Exchange sexp at PT with the one at point."
     (set-mark pt)
     (transpose-sexps 0))
-  (add-to-list 'avy-dispatch-alist '(?e . avy-action-exchange)))
+  (add-to-list 'avy-dispatch-alist '(?e . my/avy-action-exchange)))
 
 
 ;; Disable evil auto indent after o/O
