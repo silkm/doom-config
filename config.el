@@ -515,18 +515,27 @@
         (message "Opened Jira ticket creation."))))
 
   (defun my/jira-render-headline-html ()
-    "Export ticket to HTML only, for updating tickets in Jira."
+    "Export ticket to HTML and open existing ticket."
     (interactive)
     (require 'ox-html)
 
-    (let ((filename (concat (make-temp-file "jira-update-") ".html")))
+    (let ((filename (concat (make-temp-file "jira-update-") ".html"))
+          (url (org-entry-get (point) "JIRA_URL")))
 
       ;; Export settings:
       ;; async=nil, subtreep=t (only current headline), visible-only=nil, body-only=t
       (org-export-to-file 'html filename nil t nil t)
 
+      ;; Open HTML render
       (browse-url-of-file filename)
-      (message "Rendered HTML for current headline.")))
+
+      ;; Open Jira URL if present
+      (if (and url (not (string-blank-p url)))
+          (progn
+            (browse-url url)
+            (message "Opened Jira ticket update."))
+        (message "Opened Jira ticket update (no Jira URL found)."))))
+
 
   (setq org-capture-templates
         '(("j" "Journal" entry (file+olp+datetree "~/notebook/notes.org" "Journal")
