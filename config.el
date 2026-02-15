@@ -777,7 +777,7 @@
         :n "C-S-<return>" #'+org/insert-item-above-edit))
 
   (map! :map org-mode-map
-        :niv "C-S-<tab>" #'(lambda () (interactive) (org-shifttab 3)))
+        :niv "C-S-<tab>" #'(lambda () (interactive) (org-shifttab 2)))
 
 (after! org-download
   (setq org-download-method 'download)
