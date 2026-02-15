@@ -61,4 +61,5 @@
 (package! evil-textobj-line)
 (package! evil-textobj-syntax)
 (package! flymake-eslint)
-;; (package! exec-path-from-shell)
+(package! flymake-ruff)
+(package! exec-path-from-shell)

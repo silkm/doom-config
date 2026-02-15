@@ -294,6 +294,7 @@
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 
 
+;; To be avoided, exceptionally slow.
 ;; (use-package! exec-path-from-shell
 ;;   :config
 ;;   (when (memq window-system '(mac ns x))
@@ -898,12 +899,15 @@
             (lambda ()
               (setq python-indent-def-block-scale 1)))
   (map! :map python-mode-map
-        :n "C-c C-w" #'(lambda () (interactive) (python-shell-send-buffer t))))
+        :n "C-c C-w" #'(lambda () (interactive) (python-shell-send-buffer t)))
+  (add-hook 'python-mode-hook #'eglot-ensure)
+  (add-hook 'python-ts-mode-hook #'eglot-ensure))
 
 
 (after! treesit
   (setq treesit-language-source-alist
-        '((elisp "https://github.com/Wilfred/tree-sitter-elisp")
+        '((python "https://github.com/tree-sitter/tree-sitter-python")
+          (elisp "https://github.com/Wilfred/tree-sitter-elisp")
           (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src" nil nil)
           (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src" nil nil))))
 
@@ -915,6 +919,10 @@
                       :underline '(:style line :color "orange"))
   (set-face-attribute 'flymake-note nil
                       :underline '(:style line :color "blue")))
+
+
+;; (after! (python eglot)
+;;   (require 'flymake-ruff))
 
 
 (after! flymake-eslint
@@ -946,12 +954,15 @@
 ;; (alt) == disabled by default, alternate tool python-lsp-server can use
 ;; (ruff) == replaced by ruff
 ;; Note that black and isort are handled by aphelia
+;; EDIT [2026-02-15 Sun]
+;; Swapped to basedpyright to give that a go.
 (after! eglot
+  (require 'flymake-ruff)
   (setq eglot-code-action-indicator "*")
   (add-to-list 'eglot-server-programs
-               '(python-mode . ("pylsp")))
+               '(python-mode . ("basedpyright-langserver" "--stdio")))
   (add-to-list 'eglot-server-programs
-               '(python-ts-mode . ("pylsp")))
+               '(python-ts-mode . ("basedpyright-langserver" "--stdio")))
   (add-to-list 'eglot-server-programs
                '((tsx-mode typescript-tsx-mode) . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs
@@ -959,19 +970,28 @@
   (add-to-list 'eglot-server-programs
                '(haskell-ts-mode . ("haskell-language-server-wrapper" "--lsp")))
   (setq-default eglot-workspace-configuration
-                '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t) ;; [X] autocompletion
-                                    :rope (:enabled t)                            ;; [X] refactoring (can swap with lsp rope)
-                                    :pylsp_mypy (:enabled t)                      ;; [X] type checking
-                                    :pydocstyle (:enabled t)                      ;; [X] docstring style checking
-                                    :ruff (:enabled t :formatEnabled :json-false) ;; [X] linting
-                                    :autopep8 (:enabled :json-false)              ;; (ruff) uses pycodestyle to auto format
-                                    :yapf (:enabled :json-false)                  ;; (ruff) applies formatting
-                                    :pyflakes (:enabled :json-false)              ;; (ruff) error checking
-                                    :mccabe (:enabled :json-false)                ;; (ruff) complexity checking
-                                    :pycodestyle (:enabled :json-false)           ;; (ruff) style checking
-                                    :flake8 (:enabled :json-false)                ;; (alt) error checking
-                                    :pylint (:enabled :json-false)                ;; (alt) linting
-                                    )))))
+                '(:basedpyright (:analysis (:typeCheckingMode "standard"
+                                            :autoimportCompletions t
+                                            :diagnosticMode "openFilesOnly"
+                                            :reportUnusedImport "none"
+                                            :reportUnusedVariable "none"))))
+  (add-hook 'eglot-managed-mode-hook #'flymake-ruff-load))
+  ;; (setq-default eglot-workspace-configuration
+  ;;               '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t) ;; [X] autocompletion
+  ;;                                   :rope (:enabled t)                            ;; [X] refactoring (can swap with lsp rope)
+  ;;                                   :pylsp_mypy (:enabled t)                      ;; [X] type checking
+  ;;                                   :pydocstyle (:enabled t)                      ;; [X] docstring style checking
+  ;;                                   :ruff (:enabled t :formatEnabled :json-false) ;; [X] linting
+  ;;                                   :autopep8 (:enabled :json-false)              ;; (ruff) uses pycodestyle to auto format
+  ;;                                   :yapf (:enabled :json-false)                  ;; (ruff) applies formatting
+  ;;                                   :pyflakes (:enabled :json-false)              ;; (ruff) error checking
+  ;;                                   :mccabe (:enabled :json-false)                ;; (ruff) complexity checking
+  ;;                                   :pycodestyle (:enabled :json-false)           ;; (ruff) style checking
+  ;;                                   :flake8 (:enabled :json-false)                ;; (alt) error checking
+  ;;                                   :pylint (:enabled :json-false)                ;; (alt) linting
+  ;;                                   ))))
+  ;;
+
 
 
 (after! dape
