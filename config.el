@@ -309,6 +309,8 @@
   (setq org-startup-folded 'content)
   (setq org-image-actual-width 300)
   (setq org-export-initial-scope 'subtree)
+  (remove-hook 'org-tab-first-hook #'+org-cycle-only-current-subtree-h) ;; Cycle headlines classic
+  (add-hook 'org-mode-hook (lambda () (hl-line-mode -1))) ;; Disable hl-line-mode to restore @open @closed highlight
 
   ;; AGENDA
 
