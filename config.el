@@ -930,17 +930,22 @@
           (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src" nil nil))))
 
 
+;; note that diagnostics at end of line will show everything
+;; and gets noisy with our repos.
+;; Popon mode disabling also cuts out some of the noise
 (after! flymake
   (set-face-attribute 'flymake-error nil
-                      :underline '(:style line :color "red"))
+                      :underline '(:style dots :color "red"))
   (set-face-attribute 'flymake-warning nil
-                      :underline '(:style line :color "orange"))
+                      :underline '(:style dots :color "#FBBF77"))
   (set-face-attribute 'flymake-note nil
-                      :underline '(:style line :color "blue")))
+                      :underline '(:style dots :color "blue"))
+  (setq flymake-show-diagnostics-at-end-of-line 'short)
+  (remove-hook 'flymake-mode-hook #'flymake-popon-mode))
 
 
-;; (after! (python eglot)
-;;   (require 'flymake-ruff))
+(after! eldoc
+  (setq eldoc-display-functions '(eldoc-display-in-echo-area)))
 
 
 (after! flymake-eslint
