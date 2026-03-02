@@ -274,6 +274,10 @@
 (setq evil-emacs-state-cursor (list  #'+evil-emacs-cursor-fn "#f5a098"))
 
 
+;; Open multiple projects in the one workspace
+(setq +workspaces-on-switch-project-behavior nil)
+
+
 ;; avy reduce the timer
 (after! avy
   (setq avy-timeout-seconds 0.3)
