@@ -337,9 +337,9 @@
     (let ((categories '()))
       (org-map-entries
        (lambda ()
-       (let ((cat (org-get-category)))
-         (unless (member cat categories)
-           (push cat categories))))
+         (let ((cat (org-get-category)))
+           (unless (member cat categories)
+             (push cat categories))))
        "+@open" 'agenda)
       (sort categories #'string<)))
 
@@ -360,7 +360,7 @@
     (let ((current-categories (my/get-open-tag-categories)))
       (unless (and my/category-color-cache
                    (equal (mapcar #'car my/category-color-cache)
-                        current-categories))
+                          current-categories))
         (setq my/category-color-cache
               (let ((colors (my/generate-color-palette (length current-categories))))
                 (cl-loop for cat in current-categories
@@ -372,8 +372,8 @@
     "Colorize agenda items by category, only when viewing @open tags."
     (when (and (derived-mode-p 'org-agenda-mode)
                (save-excursion
-               (goto-char (point-min))
-               (re-search-forward "Headlines with TAGS match: @open" nil t)))
+                 (goto-char (point-min))
+                 (re-search-forward "Headlines with TAGS match: @open" nil t)))
       (save-excursion
         (goto-char (point-min))
         (let ((category-colors (my/get-or-generate-category-colors)))
