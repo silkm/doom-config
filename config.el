@@ -994,27 +994,31 @@
   (add-to-list 'eglot-server-programs
                '(haskell-ts-mode . ("haskell-language-server-wrapper" "--lsp")))
   (setq-default eglot-workspace-configuration
-                '(:basedpyright (:analysis (:typeCheckingMode "standard"
-                                            :autoimportCompletions t
-                                            :diagnosticMode "openFilesOnly"
-                                            :reportUnusedImport "none"
-                                            :reportUnusedVariable "none"))))
+                '(:basedpyright.analysis (:typeCheckingMode "standard"
+                                          :autoImportCompletions t
+                                          :diagnosticMode "openFilesOnly"
+                                          :reportUnusedImport "none"
+                                          :reportUnusedVariable "none"
+                                          :inlayHints (:variableTypes :json-false
+                                                       :functionReturnTypes :json-false
+                                                       :callArgumentNames :json-false
+                                                       :genericTypes :json-false))))
   (add-hook 'eglot-managed-mode-hook #'flymake-ruff-load))
-  ;; (setq-default eglot-workspace-configuration
-  ;;               '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t) ;; [X] autocompletion
-  ;;                                   :rope (:enabled t)                            ;; [X] refactoring (can swap with lsp rope)
-  ;;                                   :pylsp_mypy (:enabled t)                      ;; [X] type checking
-  ;;                                   :pydocstyle (:enabled t)                      ;; [X] docstring style checking
-  ;;                                   :ruff (:enabled t :formatEnabled :json-false) ;; [X] linting
-  ;;                                   :autopep8 (:enabled :json-false)              ;; (ruff) uses pycodestyle to auto format
-  ;;                                   :yapf (:enabled :json-false)                  ;; (ruff) applies formatting
-  ;;                                   :pyflakes (:enabled :json-false)              ;; (ruff) error checking
-  ;;                                   :mccabe (:enabled :json-false)                ;; (ruff) complexity checking
-  ;;                                   :pycodestyle (:enabled :json-false)           ;; (ruff) style checking
-  ;;                                   :flake8 (:enabled :json-false)                ;; (alt) error checking
-  ;;                                   :pylint (:enabled :json-false)                ;; (alt) linting
-  ;;                                   ))))
-  ;;
+;; (setq-default eglot-workspace-configuration
+;;               '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t) ;; [X] autocompletion
+;;                                   :rope (:enabled t)                            ;; [X] refactoring (can swap with lsp rope)
+;;                                   :pylsp_mypy (:enabled t)                      ;; [X] type checking
+;;                                   :pydocstyle (:enabled t)                      ;; [X] docstring style checking
+;;                                   :ruff (:enabled t :formatEnabled :json-false) ;; [X] linting
+;;                                   :autopep8 (:enabled :json-false)              ;; (ruff) uses pycodestyle to auto format
+;;                                   :yapf (:enabled :json-false)                  ;; (ruff) applies formatting
+;;                                   :pyflakes (:enabled :json-false)              ;; (ruff) error checking
+;;                                   :mccabe (:enabled :json-false)                ;; (ruff) complexity checking
+;;                                   :pycodestyle (:enabled :json-false)           ;; (ruff) style checking
+;;                                   :flake8 (:enabled :json-false)                ;; (alt) error checking
+;;                                   :pylint (:enabled :json-false)                ;; (alt) linting
+;;                                   ))))
+;;
 
 
 
