@@ -503,13 +503,13 @@
       ;; Create URL
       (let ((url-params
              (concat
-            "?pid=" my-jira-project-id
-            "&issuetype=" my-jira-issuetype-id
-            "&assignee=" my-jira-account-id
-            "&summary=" (url-hexify-string title)
-            "&" my-jira-points-field-id "=" (or points "3")
-            "&" my-jira-program-field-id "=" program-option-id
-            (if deadline-str (concat "&duedate=" deadline-str) ""))))
+              "?pid=" my-jira-project-id
+              "&issuetype=" my-jira-issuetype-id
+              "&assignee=" my-jira-account-id
+              "&summary=" (url-hexify-string title)
+              "&" my-jira-points-field-id "=" (or points "3")
+              "&" my-jira-program-field-id "=" program-option-id
+              (if deadline-str (concat "&duedate=" deadline-str) ""))))
 
         ;; Open the local HTML file
         (browse-url-of-file filename)
