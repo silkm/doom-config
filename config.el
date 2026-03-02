@@ -804,8 +804,17 @@
 
 
 (after! smartparens
-  :config
-  (setq smartparens-strict-mode t))
+  ;; Force Smartparens to handle backspace in insert mode,
+  ;; overriding major-mode specific whitespace deletion.
+  ;; This does not require strict mode to be enabled
+  (map! :map smartparens-mode-map
+        :i [backspace] #'sp-backward-delete-char
+        :i "DEL"       #'sp-backward-delete-char))
+
+;; (after! smartparens
+;;   :config
+;;   (setq smartparens-strict-mode t))
+
 
 
 (cond ((eq system-type 'darwin)
