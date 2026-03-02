@@ -781,8 +781,13 @@
         :i "C-S-<return>" #'+org/insert-item-above-edit
         :n "C-S-<return>" #'+org/insert-item-above-edit))
 
-  (map! :map org-mode-map
-        :niv "C-S-<tab>" #'(lambda () (interactive) (org-shifttab 2)))
+(map! :map org-mode-map
+      :niv "C-S-<tab>" #'(lambda () (interactive) (org-shifttab 2)))
+
+
+(after! evil-org
+  (remove-hook 'org-tab-first-hook #'+org-cycle-only-current-subtree-h))
+
 
 (after! org-download
   (setq org-download-method 'download)
