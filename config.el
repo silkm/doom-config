@@ -420,30 +420,30 @@
           (search . " %i %-12:c")))
 
   (setq org-agenda-sorting-strategy
-      '((agenda habit-down time-up priority-down category-keep)
-        (todo   priority-down category-keep)
-        (tags   category-keep priority-down)
-        (search category-keep priority-down)))
+        '((agenda habit-down time-up priority-down category-keep)
+          (todo   priority-down category-keep)
+          (tags   category-keep priority-down)
+          (search category-keep priority-down)))
 
   (setq org-agenda-custom-commands
-      '(("o" "Project Dashboard"
-         (
-          ;; --- BLOCK 1: Active Tickets ---
-          ;; Inherits global formatting (Width 25, Points, Deadline)
-          (tags "@open"
-                ((org-agenda-overriding-header "Headlines with TAGS match: @open")))
+        '(("o" "Project Dashboard"
+           (
+            ;; --- BLOCK 1: Active Tickets ---
+            ;; Inherits global formatting (Width 25, Points, Deadline)
+            (tags "@open"
+                  ((org-agenda-overriding-header "Headlines with TAGS match: @open")))
 
-          ;; --- BLOCK 2: All Other TODOs ---
-          (alltodo ""
-                   ((org-agenda-overriding-header "TODOs")
-                    ;; Skip entries already shown above
-                    (org-agenda-skip-function '(org-agenda-skip-entry-if 'regexp ":@open:"))
+            ;; --- BLOCK 2: All Other TODOs ---
+            (alltodo ""
+                     ((org-agenda-overriding-header "TODOs")
+                      ;; Skip entries already shown above
+                      (org-agenda-skip-function '(org-agenda-skip-entry-if 'regexp ":@open:"))
 
-                    (org-agenda-prefix-format '((todo . " %i %-25:c ")))
+                      (org-agenda-prefix-format '((todo . " %i %-25:c ")))
 
-                    (org-agenda-sorting-strategy '(priority-down category-keep))
-                    ))
-          ))))
+                      (org-agenda-sorting-strategy '(priority-down category-keep))
+                      ))
+            ))))
 
   (map! :leader
         :prefix "o a"
