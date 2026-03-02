@@ -490,10 +490,10 @@
 
            (deadline-time (org-get-deadline-time (point)))
            (deadline-str (when deadline-time
-                         (format-time-string "%d/%b/%y" deadline-time)))
+                           (format-time-string "%d/%b/%y" deadline-time)))
 
            (program-option-id (or (org-entry-get (point) "PROGRAM_ID")
-                                my-jira-default-program-id))
+                                  my-jira-default-program-id))
 
            (filename (concat (make-temp-file "jira-export-") ".html")))
 
