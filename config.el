@@ -299,6 +299,12 @@
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 
 
+(after! vterm
+  (add-hook 'vterm-mode-hook
+            (lambda ()
+              (setq-local ring-bell-function 'ignore))))
+
+
 ;; To be avoided, exceptionally slow.
 ;; (use-package! exec-path-from-shell
 ;;   :config
@@ -1042,7 +1048,7 @@
         :i "C-p" #'copilot-previous-completion))
 
 
-(use-package! gptel
+(after! gptel
   :config
   (setq gptel-backend (gptel-make-anthropic "Claude"
                         :stream t
