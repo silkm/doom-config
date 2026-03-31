@@ -769,6 +769,7 @@
         :desc "Create ticket" "o" #'my/jira-create-ticket-from-headline
         :desc "Update/render" "u" #'my/jira-render-headline-html
         :desc "Toggle status" "t" #'my/toggle-open-closed-tag
+        :desc "Mark as done"  "d" #'my/toggle-open-closed-tag
         :desc "Add Jira URL"  "l" #'my/org-set-jira-url)
 
   (map! :map org-mode-map
