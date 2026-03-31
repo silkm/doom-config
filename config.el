@@ -805,6 +805,17 @@
   (advice-add 'org-id-get-create :override #'ignore))
 
 
+(defun my/corfu-kill-ghost-frame ()
+  "Directly locate and destroy the orphaned Corfu child frame."
+  (interactive)
+  (when (and (boundp 'corfu--frame)
+             (frame-live-p corfu--frame))
+    (delete-frame corfu--frame)
+    ;; Clear the variable so Corfu knows it needs to build a new one next time
+    (setq corfu--frame nil)))
+(advice-add 'toggle-frame-fullscreen :after #'my/corfu-kill-ghost-frame)
+
+
 (after! winum
   (setq winum-auto-setup-mode-line nil)
   :config
