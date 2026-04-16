@@ -63,3 +63,4 @@
 (package! flymake-eslint)
 (package! flymake-ruff)
 (package! exec-path-from-shell)
+(package! catppuccin-theme)
