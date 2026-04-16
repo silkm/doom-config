@@ -145,6 +145,17 @@
 (use-package! evil-textobj-syntax)
 
 
+;; Add a function to drop the current line down one
+(defun my/insert-newline-above-and-goto ()
+  "Insert a blank line above current line and move cursor to it."
+  (interactive)
+  (beginning-of-line)
+  (newline)
+  (forward-line -1))
+
+(map! :n "<S-return>" #'my/insert-newline-above-and-goto)
+
+
 ;; Globals
 (global-set-key (kbd "C-g") 'keyboard-quit)
 (global-set-key (kbd "C-;") 'other-window)
