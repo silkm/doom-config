@@ -1090,6 +1090,11 @@
         plantuml-default-exec-mode 'executable))
 
 
+(defun my/dired-colab ()
+  (interactive)
+  (find-file "/ssh:msilk-colab.australia-southeast1-b.notebooks-314505|docker:colab-kernel:/"))
+
+
 (defun my-update-silk-ssh-config ()
   "Update SSH config entries for hosts starting with silk- in ~/.ssh/config.
    Removes duplicate entries, keeping the simpler one from Google."
