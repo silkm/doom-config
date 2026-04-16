@@ -145,6 +145,10 @@
 (use-package! evil-textobj-syntax)
 
 
+;; Disable ESC menu fully in evil-emacs-mode
+(define-key evil-emacs-state-map (kbd "<escape>") #'ignore)
+
+
 ;; Add a function to drop the current line down one
 (defun my/insert-newline-above-and-goto ()
   "Insert a blank line above current line and move cursor to it."
