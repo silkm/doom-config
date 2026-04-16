@@ -316,6 +316,7 @@
 
 
 (after! vterm
+  (evil-set-initial-state 'vterm-mode 'emacs)
   (add-hook 'vterm-mode-hook
             (lambda ()
               (setq-local ring-bell-function 'ignore))))
@@ -923,6 +924,10 @@
       :desc "Switch to last workspace" "0" #'+workspace/switch-to-final)
 
 (after! ess
+
+  (evil-set-initial-state 'ess-r-mode 'emacs)
+  (evil-set-initial-state 'inferior-ess-r-mode 'emacs)
+
   (defun ess-insert-header ()
     "Insert R header lines and standard libs."
     (interactive)
