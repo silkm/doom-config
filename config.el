@@ -351,76 +351,76 @@
          (list "~/notebook/notes.org" "~/notebook/tasks.org")))
   (setq org-agenda-remove-tags t)
 
-  ;; Agenda - colourise open tickets
+  ;; Agenda - colourise lines by parent epic, status tag badges via org-tag-faces
 
-  (defvar my/category-color-cache nil
-    "Cached category-to-color mapping.")
+  (defvar my/epic-color-cache nil
+    "Cached epic-name to color mapping.")
 
-  (defun my/get-open-tag-categories ()
-    "Get all unique categories from entries tagged with @open."
-    (let ((categories '()))
-      (org-map-entries
-       (lambda ()
-         (let ((cat (org-get-category)))
-           (unless (member cat categories)
-             (push cat categories))))
-       "+@open" 'agenda)
-      (sort categories #'string<)))
+  (defun my/get-entry-epic (marker)
+    "Return the epic heading text for the entry at MARKER, or nil."
+    (when (and marker (marker-buffer marker))
+      (with-current-buffer (marker-buffer marker)
+        (save-excursion
+          (goto-char (marker-position marker))
+          (let ((epic nil))
+            (while (and (not epic) (org-up-heading-safe))
+              (when (member "epic" (org-get-tags))
+                (setq epic (org-get-heading t t t t))))
+            epic)))))
 
   (defun my/generate-color-palette (n)
-    "Generate N distinct colors using HSL color space."
+    "Generate N distinct colors using HSL golden-ratio spacing."
     (let ((colors '())
           (golden-ratio 0.618033988749895))
       (dotimes (i n)
         (let* ((hue (mod (* i golden-ratio) 1.0))
-               (saturation 0.6)
-               (lightness 0.65)
-               (color (color-hsl-to-rgb hue saturation lightness)))
+               (color (color-hsl-to-rgb hue 0.6 0.65)))
           (push (apply #'color-rgb-to-hex color) colors)))
       (nreverse colors)))
 
-  (defun my/get-or-generate-category-colors ()
-    "Get cached colors or generate new ones if categories changed."
-    (let ((current-categories (my/get-open-tag-categories)))
-      (unless (and my/category-color-cache
-                   (equal (mapcar #'car my/category-color-cache)
-                          current-categories))
-        (setq my/category-color-cache
-              (let ((colors (my/generate-color-palette (length current-categories))))
-                (cl-loop for cat in current-categories
-                         for color in colors
-                         collect (cons cat color)))))
-      my/category-color-cache))
+  (defun my/get-epic-colors ()
+    "Return cached epic-to-color alist, regenerating if epics have changed."
+    (let ((epics '()))
+      (org-map-entries
+       (lambda ()
+         (when (member "epic" (org-get-tags))
+           (push (org-get-heading t t t t) epics)))
+       nil 'agenda)
+      (let ((sorted (sort epics #'string<)))
+        (unless (equal (mapcar #'car my/epic-color-cache) sorted)
+          (setq my/epic-color-cache
+                (cl-mapcar #'cons sorted (my/generate-color-palette (length sorted)))))
+        my/epic-color-cache)))
 
-  (defun my/colorize-open-tags ()
-    "Colorize agenda items by category, only when viewing @open tags."
-    (when (and (derived-mode-p 'org-agenda-mode)
-               (save-excursion
-                 (goto-char (point-min))
-                 (re-search-forward "Headlines with TAGS match: @open" nil t)))
+  (defun my/colorize-by-epic ()
+    "Colorize agenda lines by their parent epic."
+    (let ((epic-colors (my/get-epic-colors)))
       (save-excursion
         (goto-char (point-min))
-        (let ((category-colors (my/get-or-generate-category-colors)))
-          (dolist (cat-color category-colors)
-            (goto-char (point-min))
-            (while (re-search-forward (concat "^  " (regexp-quote (car cat-color)) ":") nil t)
+        (while (not (eobp))
+          (let* ((marker (or (org-get-at-bol 'org-hd-marker)
+                             (org-get-at-bol 'org-marker)))
+                 (epic (my/get-entry-epic marker))
+                 (color (when epic (cdr (assoc epic epic-colors)))))
+            (when color
               (add-text-properties
                (line-beginning-position)
                (line-end-position)
-               `(face (:foreground ,(cdr cat-color))))))))))
+               `(face (:foreground ,color)))))
+          (forward-line 1)))))
 
-  (add-hook 'org-agenda-finalize-hook #'my/colorize-open-tags)
+  (add-hook 'org-agenda-finalize-hook #'my/colorize-by-epic)
 
   ;; Agenda - Project view formatting
 
   (defun my/agenda-story-points ()
     "Return story points. Uses [ ] if synced to Jira, - - if unsynced."
     (let ((points (org-entry-get (point) "STORY_POINTS"))
-          (url (org-entry-get (point) "JIRA_URL")))
+          (key (org-entry-get (point) "JIRA_KEY")))
       (if (and points (not (string-blank-p points)))
-          (if (and url (not (string-blank-p url)))
-              (format "[%s]" points)   ;; Synced: Standard Brackets
-            (format "-%s-" points))    ;; Unsynced: Hyphens Warning
+          (if (and key (not (string-blank-p key)))
+              (format "[%s]" points)
+            (format "-%s-" points))
         "   "))) ;; Spacer if no points set
 
   (defun my/agenda-deadline ()
@@ -452,53 +452,70 @@
   (setq org-agenda-custom-commands
         '(("o" "Project Dashboard"
            (
-            ;; --- BLOCK 1: Active Tickets ---
-            ;; Inherits global formatting (Width 25, Points, Deadline)
-            (tags "@open"
-                  ((org-agenda-overriding-header "Headlines with TAGS match: @open")))
+            ;; --- Active: in flight ---
+            (tags "@in_progress|@in_review|@blocked"
+                  ((org-agenda-overriding-header "Active")))
 
-            ;; --- BLOCK 2: All Other TODOs ---
+            ;; --- Queued: not yet started ---
+            (tags "@todo|@approved|@backlog"
+                  ((org-agenda-overriding-header "Queued")))
+
+            ;; --- TODOs: non-Jira tasks, coloured by parent epic ---
             (alltodo ""
                      ((org-agenda-overriding-header "TODOs")
-                      ;; Skip entries already shown above
-                      (org-agenda-skip-function '(org-agenda-skip-entry-if 'regexp ":@open:"))
-
+                      (org-agenda-skip-function
+                       '(org-agenda-skip-entry-if
+                         'regexp
+                         ":@in_progress:\\|:@in_review:\\|:@blocked:\\|:@todo:\\|:@approved:\\|:@backlog:\\|:@done:\\|:@wont_do:"))
                       (org-agenda-prefix-format '((todo . " %i %-25:c ")))
-
-                      (org-agenda-sorting-strategy '(priority-down category-keep))
-                      ))
+                      (org-agenda-sorting-strategy '(priority-down category-keep))))
             ))))
 
   (map! :leader
         :prefix "o a"
-        :desc "View open tickets"
-        "o" (lambda () (interactive) (org-tags-view nil "@open")))
+        :desc "View active tickets"
+        "o" (lambda () (interactive) (org-agenda nil "o")))
 
   (setq org-refile-targets '((org-agenda-files :maxlevel . 2)))
   (setq org-refile-allow-creating-parent-nodes 'confirm)
 
-  (setq org-tags-exclude-from-inheritance '("@open"))
-  (setq org-tag-faces
-        '(("@open" . (:foreground "#065f46" :background "#d1fae5" :weight bold))
-          ("@closed" . (:foreground "#7c2d12" :background "#fed7aa" :weight bold))))
+  (setq org-tags-exclude-from-inheritance
+        '("@backlog" "@todo" "@approved" "@in_progress" "@in_review"
+          "@blocked" "@done" "@wont_do" "epic"))
 
-  (defun my/toggle-open-closed-tag ()
-    "Cycle between @open, @closed, and no open/closed tag on the current headline."
+  (setq org-tag-faces
+        '(("@backlog"     . (:foreground "#737994" :background "#414559" :weight bold))
+          ("@todo"        . (:foreground "#c6d0f5" :background "#51576d" :weight bold))
+          ("@approved"    . (:foreground "#85c1dc" :background "#2d4555" :weight bold))
+          ("@in_progress" . (:foreground "#8caaee" :background "#2a3459" :weight bold))
+          ("@in_review"   . (:foreground "#e5c890" :background "#403d28" :weight bold))
+          ("@blocked"     . (:foreground "#e78284" :background "#402828" :weight bold))
+          ("@done"        . (:foreground "#a6d189" :background "#2a3d28" :weight bold))
+          ("@wont_do"     . (:foreground "#838ba7" :background "#414559" :weight bold))
+          ("epic"         . (:foreground "#ca9ee6" :background "#3a2d50" :weight bold))))
+
+  (defvar my/jira-status-tags
+    '("@backlog" "@todo" "@approved" "@in_progress" "@in_review" "@blocked" "@done" "@wont_do")
+    "All Jira status tags.")
+
+  (defun my/set-jira-status ()
+    "Prompt for a Jira status and set it on the current headline."
+    (interactive)
+    (let ((selected (completing-read "Status: " my/jira-status-tags nil t)))
+      (save-excursion
+        (org-back-to-heading t)
+        (dolist (s my/jira-status-tags)
+          (org-toggle-tag s 'off))
+        (org-toggle-tag selected 'on))))
+
+  (defun my/jira-set-done ()
+    "Set current ticket status to Done."
     (interactive)
     (save-excursion
       (org-back-to-heading t)
-      (let ((tags (org-get-tags)))
-        (cond
-         ;; @open -> @closed
-         ((member "@open" tags)
-          (org-toggle-tag "@open" 'off)
-          (org-toggle-tag "@closed" 'on))
-         ;; @closed -> none
-         ((member "@closed" tags)
-          (org-toggle-tag "@closed" 'off))
-         ;; none -> @closed
-         (t
-          (org-toggle-tag "@open" 'on))))))
+      (dolist (s my/jira-status-tags)
+        (org-toggle-tag s 'off))
+      (org-toggle-tag "@done" 'on)))
 
   ;; Jira ticket exports
 
@@ -580,39 +597,50 @@
            :empty-lines 1)
 
           ("t" "Task" entry
-           (file+headline
+           (file+function
+            "~/notebook/projects/popgen.org"
             (lambda ()
-              (let* ((default-tasks (expand-file-name "~/notebook/tasks.org"))
-                     (project-files (directory-files-recursively "~/notebook/projects/" "\\.org$"))
-                     ;; Build an alist for selection
-                     (candidates (cons (cons "tasks.org" default-tasks)
-                                       (mapcar (lambda (f) (cons (file-name-nondirectory f) f))
-                                               project-files))))
-                ;; Prompt user, defaulting to "tasks.org"
-                (let ((selection (completing-read "File task to: " candidates nil t nil nil "tasks.org")))
-                  (cdr (assoc selection candidates)))))
-            "Tasks")
-           "* TODO [#B] %i%?\n")
-
-          ("P" "Project File" plain
-           (file (lambda ()
-                   (let ((filename (read-string "Filename: ")))
-                     (expand-file-name
-                      (format "%s.org"
-                              filename)
-                      "~/notebook/projects/"))))
-           "#+TITLE: %^{Project title: }\n#+DATE: %U\n#+FILETAGS: %^G\n#+OPTIONS: \\n:t num:nil tags:nil toc:nil ^:nil\n\n%?\n\n* Progress\n\n* Tasks")
+              (let ((epics-alist '()))
+                (org-map-entries
+                 (lambda ()
+                   (when (member "epic" (org-get-tags))
+                     (push (cons (org-get-heading t t t t) (point)) epics-alist)))
+                 nil 'file)
+                (let* ((choices (append (mapcar #'car (nreverse epics-alist)) '("Void")))
+                       (selected (completing-read "File under epic: " choices nil t nil nil "Void")))
+                  (if (string= selected "Void")
+                      (progn
+                        (goto-char (point-min))
+                        (re-search-forward "^\\* Void" nil t)
+                        (let ((end (save-excursion (org-end-of-subtree t t) (point))))
+                          (if (re-search-forward "^\\*\\* Tasks" end t)
+                              (org-end-of-subtree t t)
+                            (org-end-of-subtree t t))))
+                    (let ((epic-pos (cdr (assoc selected epics-alist))))
+                      (goto-char epic-pos)
+                      (let ((end (save-excursion (org-end-of-subtree t t) (point))))
+                        (if (re-search-forward "^\\*\\* Tasks" end t)
+                            (org-end-of-subtree t t)
+                          (org-end-of-subtree t t)))))))))
+           "*** TODO [#B] %i%?\n")
 
           ("p" "Project Ticket" entry
-           (file+headline
+           (file+function
+            "~/notebook/projects/popgen.org"
             (lambda ()
-              (read-file-name "Select project file: "
-                              "~/notebook/projects/"
-                              nil t nil
-                              (lambda (f)
-                                (string-match "\\.org$" f))))
-            "Progress")
-           "* [#%^{Priority|B|A|B|C}] %^{Task name} :@open:\n:PROPERTIES:\n:CREATED: %U\n:STORY_POINTS: %^{Story Points|3}\n:JIRA_URL:\n:END:\n\n*Description*\n%?\n\n*Definition of Done*\n"
+              (let ((epics '()))
+                (org-map-entries
+                 (lambda ()
+                   (when (member "epic" (org-get-tags))
+                     (push (cons (org-get-heading t t t t) (point)) epics)))
+                 nil 'file)
+                (if epics
+                    (let* ((selected (completing-read "Epic: " (mapcar #'car (nreverse epics)) nil t))
+                           (pos (cdr (assoc selected epics))))
+                      (goto-char pos)
+                      (org-end-of-subtree t t))
+                  (goto-char (point-max))))))
+           "** [#%^{Priority|B|A|B|C}] %^{Task name} :@todo:\n:PROPERTIES:\n:CREATED: %U\n:JIRA_KEY:\n:JIRA_TITLE:\n:STORY_POINTS: %^{Story Points|3}\n:SPRINT:\n:JIRA_URL:\n:END:\n\n*Description*\n%?\n\n*Definition of Done*\n"
            :empty-lines 1)
 
           ("l" "Maintenance Log" entry (file+headline "~/notebook/notes.org" "Maintenance")
@@ -783,17 +811,21 @@
         "C-S-RET"      #'+org/insert-item-above-edit
         "S-s-<return>" #'+org/insert-item-above-edit
         "C-c l" #'my/org-insert-checkbox
-        "C-c C-;" #'my/toggle-open-closed-tag
+        "C-c C-;" #'my/set-jira-status
         "C-c j" #'my/jira-create-ticket-from-headline)
 
   (map! :map org-mode-map
         :leader
         :prefix "j"
-        :desc "Create ticket" "o" #'my/jira-create-ticket-from-headline
-        :desc "Update/render" "u" #'my/jira-render-headline-html
-        :desc "Toggle status" "t" #'my/toggle-open-closed-tag
-        :desc "Mark as done"  "d" #'my/toggle-open-closed-tag
-        :desc "Add Jira URL"  "l" #'my/org-set-jira-url)
+        :desc "Create ticket in Jira"  "o" #'my/jira-api-create-ticket
+        :desc "Render HTML"            "u" #'my/jira-render-headline-html
+        :desc "Set status"             "t" #'my/set-jira-status
+        :desc "Mark as done"           "d" #'my/jira-set-done
+        :desc "Set Jira URL"           "l" #'my/org-set-jira-url
+        :desc "Pull epics + tickets"   "p" #'my/jira-pull-all
+        :desc "Pull epics only"        "e" #'my/jira-pull-epics
+        :desc "Push body to Jira"      "b" #'my/jira-push-body
+        :desc "Sync current ticket"    "s" #'my/jira-sync-ticket)
 
   (map! :map org-mode-map
         :localleader
