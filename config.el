@@ -91,6 +91,7 @@
 
 ;; LOADS
 (load! "secrets.el")
+(load! "jira.el")
 
 
 ;; BASICS
@@ -295,6 +296,7 @@
 (setq +workspaces-on-switch-project-behavior nil)
 
 
+
 ;; avy reduce the timer
 (after! avy
   (setq avy-timeout-seconds 0.3)
@@ -353,8 +355,7 @@
 
   ;; Agenda - colourise lines by parent epic, status tag badges via org-tag-faces
 
-  (defvar my/epic-color-cache nil
-    "Cached epic-name to color mapping.")
+  (defvar my/epic-color-cache nil)
 
   (defun my/get-entry-epic (marker)
     "Return the epic heading text for the entry at MARKER, or nil."
@@ -494,10 +495,6 @@
           ("@wont_do"     . (:foreground "#838ba7" :background "#414559" :weight bold))
           ("epic"         . (:foreground "#ca9ee6" :background "#3a2d50" :weight bold))))
 
-  (defvar my/jira-status-tags
-    '("@backlog" "@todo" "@approved" "@in_progress" "@in_review" "@blocked" "@done" "@wont_do")
-    "All Jira status tags.")
-
   (defun my/set-jira-status ()
     "Prompt for a Jira status and set it on the current headline."
     (interactive)
@@ -613,35 +610,35 @@
                         (goto-char (point-min))
                         (re-search-forward "^\\* Void" nil t)
                         (let ((end (save-excursion (org-end-of-subtree t t) (point))))
-                          (if (re-search-forward "^\\*\\* Tasks" end t)
-                              (org-end-of-subtree t t)
-                            (org-end-of-subtree t t))))
+                          (re-search-forward "^\\*\\* Tasks" end t)))
                     (let ((epic-pos (cdr (assoc selected epics-alist))))
                       (goto-char epic-pos)
                       (let ((end (save-excursion (org-end-of-subtree t t) (point))))
-                        (if (re-search-forward "^\\*\\* Tasks" end t)
-                            (org-end-of-subtree t t)
-                          (org-end-of-subtree t t)))))))))
-           "*** TODO [#B] %i%?\n")
+                        (re-search-forward "^\\*\\* Tasks" end t))))))))
+           "* TODO [#B] %i%?\n")
 
-          ("p" "Project Ticket" entry
+          ("p" "Project Ticket" plain
            (file+function
             "~/notebook/projects/popgen.org"
             (lambda ()
-              (let ((epics '()))
+              (let ((epics-alist '()))
                 (org-map-entries
                  (lambda ()
                    (when (member "epic" (org-get-tags))
-                     (push (cons (org-get-heading t t t t) (point)) epics)))
+                     (push (cons (org-get-heading t t t t) (point)) epics-alist)))
                  nil 'file)
-                (if epics
-                    (let* ((selected (completing-read "Epic: " (mapcar #'car (nreverse epics)) nil t))
-                           (pos (cdr (assoc selected epics))))
-                      (goto-char pos)
-                      (org-end-of-subtree t t))
-                  (goto-char (point-max))))))
-           "** [#%^{Priority|B|A|B|C}] %^{Task name} :@todo:\n:PROPERTIES:\n:CREATED: %U\n:JIRA_KEY:\n:JIRA_TITLE:\n:STORY_POINTS: %^{Story Points|3}\n:SPRINT:\n:JIRA_URL:\n:END:\n\n*Description*\n%?\n\n*Definition of Done*\n"
-           :empty-lines 1)
+                (let* ((choices (append (mapcar #'car (nreverse epics-alist)) '("Void")))
+                       (selected (completing-read "Epic: " choices nil t)))
+                  (if (string= selected "Void")
+                      (progn
+                        (goto-char (point-min))
+                        (re-search-forward "^\\* Void" nil t))
+                    (goto-char (cdr (assoc selected epics-alist))))
+                  (let ((epic-end (save-excursion (org-end-of-subtree t t) (point))))
+                    (if (re-search-forward "^\\*\\* Tasks" epic-end t)
+                        (beginning-of-line)
+                      (goto-char epic-end)))))))
+           "** [#%^{Priority|B|A|B|C}] %^{Task name} :@todo:\n:PROPERTIES:\n:CREATED: %U\n:JIRA_KEY:\n:JIRA_TITLE:\n:STORY_POINTS: %^{Story Points|3}\n:SPRINT:\n:JIRA_URL:\n:END:\n\n*Description*\n%?\n\n*Definition of Done*\n\n\n")
 
           ("l" "Maintenance Log" entry (file+headline "~/notebook/notes.org" "Maintenance")
            "* %^{PROMPT} %^g \n%u\n\n%?\n"
