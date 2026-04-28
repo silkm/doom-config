@@ -101,6 +101,10 @@
 (setq confirm-kill-emacs nil)
 
 
+;; Start emacsclient server
+(unless (server-running-p)
+  (server-start))
+
 ;; Fix modeline being truncated by adding some padding
 (setq all-the-icons-scale-factor 0.9)
 (after! doom-modeline
