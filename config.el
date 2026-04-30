@@ -873,16 +873,29 @@
 
 
 (after! smartparens
-  ;; Force Smartparens to handle backspace in insert mode,
-  ;; overriding major-mode specific whitespace deletion.
-  ;; This does not require strict mode to be enabled
-  (map! :map smartparens-mode-map
-        :i [backspace] #'sp-backward-delete-char
-        :i "DEL"       #'sp-backward-delete-char))
+  ;; Prevent pair insertion in the minibuffer (ex commands, M-x, etc.).
+  ;; Mode-level disabling doesn't survive smartparens-global-mode re-enabling it,
+  ;; so advise the post-self-insert handler directly to no-op in minibuffer buffers.
+  (advice-add 'sp--post-self-insert-hook-handler :before-while
+              (lambda (&rest _) (not (minibufferp))))
+  (add-hook 'evil-command-window-mode-hook #'turn-off-smartparens-mode)
 
-;; (after! smartparens
-;;   :config
-;;   (setq smartparens-strict-mode t))
+  ;; Backspace: only use smartparens pair-deletion for empty pairs (e.g. () → delete both).
+  ;; Falls back to plain delete-backward-char for non-empty pairs, avoiding the strict-mode
+  ;; "skip over delimiter" behaviour where backspace moves the cursor without deleting.
+  (defun my/smart-backspace ()
+    "Delete backward; if inside an empty pair, delete both delimiters."
+    (interactive)
+    (let ((enc (sp-get-enclosing-sexp)))
+      (if (and enc
+               (= (point) (sp-get enc :beg-in))
+               (= (sp-get enc :beg-in) (sp-get enc :end-in)))
+          (sp-backward-delete-char)
+        (delete-char -1))))
+
+  (map! :map smartparens-mode-map
+        :i [backspace] #'my/smart-backspace
+        :i "DEL"       #'my/smart-backspace))
 
 
 
