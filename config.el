@@ -899,6 +899,22 @@
         :i "DEL"       #'my/smart-backspace))
 
 
+;; Window swapping meh commands
+(map! "C-M-S-o" #'evil-window-up)
+(map! "C-M-S-h" #'evil-window-left)
+(map! "C-M-S-a" #'evil-window-down)
+(map! "C-M-S-e" #'evil-window-right)
+
+(map! "C-M-S-p" #'split-window-right)
+(map! "C-M-S-f" #'split-window-below)
+
+(map! "C-M-S-w" #'evil-window-delete)
+
+(map! "C-M-S-n" #'shrink-window-horizontally)
+(map! "C-M-S-r" #'shrink-window)
+(map! "C-M-S-t" #'enlarge-window)
+(map! "C-M-S-s" #'enlarge-window-horizontally)
+(map! "C-M-S-k" #'balance-windows)
 
 (cond ((eq system-type 'darwin)
        (map! "s-0" #'winum-select-window-0-or-10)
