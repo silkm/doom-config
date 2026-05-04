@@ -908,7 +908,7 @@
 (map! "C-M-S-p" #'split-window-right)
 (map! "C-M-S-f" #'split-window-below)
 
-(map! "C-M-S-'" #'evil-window-delete)
+(map! "C-M-\"" #'evil-window-delete)
 
 (map! "C-M-S-n" #'shrink-window-horizontally)
 (map! "C-M-S-r" #'shrink-window)
