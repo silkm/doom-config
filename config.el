@@ -202,7 +202,8 @@
 (map! :leader
       :prefix "l"
       "t" #'my-set-frame-transparency
-      "s" #'my-update-silk-ssh-config)
+      "s" #'my-update-silk-ssh-config
+      "c" #'my/vterm-colab)
 
 ;; Bind flymake-goto-prev-error to previous error keybinds
 (map! :map esc-map
@@ -318,6 +319,7 @@
 
 
 (after! vterm
+  (setq vterm-shell (concat shell-file-name " -l"))
   (evil-set-initial-state 'vterm-mode 'emacs)
   (add-hook 'vterm-mode-hook
             (lambda ()
@@ -1160,6 +1162,18 @@
 (defun my/dired-colab ()
   (interactive)
   (find-file "/ssh:msilk-colab.australia-southeast1-b.notebooks-314505|docker:colab-kernel:/"))
+
+
+(defun my/vterm-colab ()
+  "Open a local vterm popup and SSH into the colab-kernel docker container.
+Forces a local `default-directory' so the terminal isn't started under a
+tramp/remote path inherited from the current buffer."
+  (interactive)
+  (let ((default-directory (expand-file-name "~/")))
+    (+vterm/toggle nil)
+    (vterm-send-string
+     "gcloud compute ssh msilk-colab --zone=australia-southeast1-b -- -t docker exec -it -e TERM=\"$TERM\" colab-kernel /bin/bash -l")
+    (vterm-send-return)))
 
 
 (defun my-update-silk-ssh-config ()
