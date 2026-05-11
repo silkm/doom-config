@@ -203,7 +203,8 @@
       :prefix "l"
       "t" #'my-set-frame-transparency
       "s" #'my-update-silk-ssh-config
-      "c" #'my/vterm-colab)
+      "c" #'my/vterm-colab
+      "d" #'my/dired-colab)
 
 ;; Bind flymake-goto-prev-error to previous error keybinds
 (map! :map esc-map
@@ -302,11 +303,38 @@
 (after! avy
   (setq avy-timeout-seconds 0.3)
   (setq avy-all-windows t)
+  ;; Gallium v2 home row
+  (setq avy-keys '(?n ?r ?t ?s ?p ?h ?a ?e ?i))
+
   (defun my/avy-action-exchange (pt)
     "Exchange sexp at PT with the one at point."
     (set-mark pt)
     (transpose-sexps 0))
-  (add-to-list 'avy-dispatch-alist '(?e . my/avy-action-exchange)))
+
+  ;; Line-variant wrappers — avy-forward-item switches to line bounds
+  ;; when avy-command is avy-goto-line.
+  (defun my/avy-action-mark-line (pt)
+    (let ((avy-command 'avy-goto-line)) (avy-action-mark pt)))
+  (defun my/avy-action-copy-line (pt)
+    (let ((avy-command 'avy-goto-line)) (avy-action-copy pt)))
+  (defun my/avy-action-kill-stay-line (pt)
+    (let ((avy-command 'avy-goto-line)) (avy-action-kill-stay pt)))
+  (defun my/avy-action-teleport-line (pt)
+    (let ((avy-command 'avy-goto-line)) (avy-action-teleport pt)))
+
+  (setq avy-dispatch-alist
+        '((?m . avy-action-mark)
+          (?M . my/avy-action-mark-line)
+          (?c . avy-action-copy)
+          (?C . my/avy-action-copy-line)
+          (?y . avy-action-yank)
+          (?Y . avy-action-yank-line)
+          (?k . avy-action-kill-stay)
+          (?K . my/avy-action-kill-stay-line)
+          (?v . avy-action-teleport)
+          (?V . my/avy-action-teleport-line)
+          (?z . avy-action-zap-to-char)
+          (?x . my/avy-action-exchange))))
 
 
 ;; Disable evil auto indent after o/O
