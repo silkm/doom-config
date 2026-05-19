@@ -963,15 +963,16 @@
 (map! "C-M-S-k" #'balance-windows)
 
 (cond ((eq system-type 'darwin)
-       (map! "s-0" #'winum-select-window-0-or-10)
-       (map! "s-1" #'winum-select-window-1)
-       (map! "s-2" #'winum-select-window-2)
-       (map! "s-3" #'winum-select-window-3)
-       (map! "s-4" #'winum-select-window-4)
-       (map! "s-5" #'winum-select-window-5)
-       (map! "s-6" #'winum-select-window-6)
-       (map! "s-7" #'winum-select-window-7)
-       (map! "s-8" #'winum-select-window-8)
+       (map! "s-0" #'+workspace/switch-to-final
+             "s-1" #'(lambda () (interactive) (+workspace/switch-to 0))
+             "s-2" #'(lambda () (interactive) (+workspace/switch-to 1))
+             "s-3" #'(lambda () (interactive) (+workspace/switch-to 2))
+             "s-4" #'(lambda () (interactive) (+workspace/switch-to 3))
+             "s-5" #'(lambda () (interactive) (+workspace/switch-to 4))
+             "s-6" #'(lambda () (interactive) (+workspace/switch-to 5))
+             "s-7" #'(lambda () (interactive) (+workspace/switch-to 6))
+             "s-8" #'(lambda () (interactive) (+workspace/switch-to 7))
+             "s-9" #'(lambda () (interactive) (+workspace/switch-to 8)))
        (map! :after evil
              :map evil-normal-state-map
              "s-0" nil
@@ -982,7 +983,8 @@
              "s-5" nil
              "s-6" nil
              "s-7" nil
-             "s-8" nil))
+             "s-8" nil
+             "s-9" nil))
       ((eq system-type 'gnu/linux)
        (map! "M-0" #'winum-select-window-0-or-10)
        (map! "M-1" #'winum-select-window-1)
