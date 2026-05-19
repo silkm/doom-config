@@ -198,13 +198,34 @@
 (map! :i "C-k" #'kill-line)
 
 
+;; Dedent the contiguous 2-space-indented block around point by 2 columns.
+;; Handy for pasted code from chat assistants that wraps blocks in 2-space indent.
+;; Blank lines extend the block; boundaries are non-blank lines without the indent.
+(defun my/dedent-block-at-point ()
+  "Dedent the contiguous 2-space-indented block around point by 2 columns."
+  (interactive)
+  (let ((indented? (lambda () (looking-at-p "^  ")))
+        (blank?    (lambda () (looking-at-p "^[ \t]*$")))
+        beg end)
+    (save-excursion
+      (beginning-of-line)
+      (while (and (not (bobp)) (or (funcall indented?) (funcall blank?)))
+        (forward-line -1))
+      (unless (or (funcall indented?) (funcall blank?)) (forward-line 1))
+      (setq beg (point))
+      (while (and (not (eobp)) (or (funcall indented?) (funcall blank?)))
+        (forward-line 1))
+      (setq end (point)))
+    (indent-rigidly beg end -2)))
+
 ;; Map custom function calls to SPC-l
 (map! :leader
       :prefix "l"
       "t" #'my-set-frame-transparency
       "s" #'my-update-silk-ssh-config
       "c" #'my/vterm-colab
-      "d" #'my/dired-colab)
+      "d" #'my/dired-colab
+      "p" #'my/dedent-block-at-point)
 
 ;; Bind flymake-goto-prev-error to previous error keybinds
 (map! :map esc-map
