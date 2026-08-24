@@ -102,7 +102,6 @@
 
 
 ;; Fix modeline being truncated by adding some padding
-(setq all-the-icons-scale-factor 0.9)
 (after! doom-modeline
   (doom-modeline-def-modeline 'main
     '(bar matches buffer-info remote-host buffer-position parrot selection-info)
@@ -1134,13 +1133,15 @@
 ;; Note that black and isort are handled by aphelia
 ;; EDIT [2026-02-15 Sun]
 ;; Swapped to basedpyright to give that a go.
+;; EDIT [2026-08-25 Tue]
+;; Swapped back to plain pyright.
 (after! eglot
   (require 'flymake-ruff)
   (setq eglot-code-action-indicator "*")
   (add-to-list 'eglot-server-programs
-               '(python-mode . ("basedpyright-langserver" "--stdio")))
+               '(python-mode . ("pyright-langserver" "--stdio")))
   (add-to-list 'eglot-server-programs
-               '(python-ts-mode . ("basedpyright-langserver" "--stdio")))
+               '(python-ts-mode . ("pyright-langserver" "--stdio")))
   (add-to-list 'eglot-server-programs
                '((tsx-mode typescript-tsx-mode) . ("typescript-language-server" "--stdio")))
   (add-to-list 'eglot-server-programs
@@ -1148,15 +1149,15 @@
   (add-to-list 'eglot-server-programs
                '(haskell-ts-mode . ("haskell-language-server-wrapper" "--lsp")))
   (setq-default eglot-workspace-configuration
-                '(:basedpyright.analysis ( :typeCheckingMode "standard"
-                                                             :autoImportCompletions t
-                                                             :diagnosticMode "openFilesOnly"
-                                                             :diagnosticSeverityOverrides (:reportUnusedImport "none"
-                                                                                           :reportUnusedVariable "none")
-                                                             :inlayHints (:variableTypes :json-false
-                                                                          :functionReturnTypes :json-false
-                                                                          :callArgumentNames :json-false
-                                                                          :genericTypes :json-false))))
+                '(:python.analysis ( :typeCheckingMode "standard"
+                                    :autoImportCompletions t
+                                    :diagnosticMode "openFilesOnly"
+                                    :diagnosticSeverityOverrides (:reportUnusedImport "none"
+                                                                  :reportUnusedVariable "none")
+                                    :inlayHints (:variableTypes :json-false
+                                                 :functionReturnTypes :json-false
+                                                 :callArgumentNames :json-false
+                                                 :genericTypes :json-false))))
   (add-hook 'eglot-managed-mode-hook #'flymake-ruff-load))
 ;; (setq-default eglot-workspace-configuration
 ;;               '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t) ;; [X] autocompletion
