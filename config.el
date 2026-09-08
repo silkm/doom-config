@@ -145,9 +145,9 @@
 (use-package! evil-textobj-syntax)
 
 
-;; Text objects for shell commands and org src blocks
-;; vir / var  visual inner/around a backslash-continued command ("run")
-;; vie / vae  visual inner/around the enclosing src block ("element")
+;; Text object for backslash-continued shell commands
+;; viz / vaz  visual inner/around the command around point
+;; (for a whole src block, evil-org already has iE / aE)
 (defun my/shell-command-bounds (&optional with-comments)
   "Return (BEG . END) of the logical shell command around point.
 A logical command is a run of lines joined by trailing backslashes.
@@ -174,23 +174,11 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
         (setq beg (point)))
       (cons beg end))))
 
-(defun my/org-src-block-body-bounds ()
-  "Return (BEG . END) of the body of the org src block around point."
-  (when-let* ((el (org-element-lineage (org-element-at-point) '(src-block) t)))
-    (save-excursion
-      (goto-char (org-element-property :begin el))
-      (forward-line 1)
-      (let ((beg (point)))
-        (goto-char (org-element-property :end el))
-        (skip-chars-backward " \t\n")
-        (beginning-of-line)
-        (cons beg (point))))))
-
 (after! evil
   (evil-define-text-object my/inner-shell-command (count &optional _beg _end _type)
     "The backslash-continued command around point."
     (let ((bounds (my/shell-command-bounds)))
-      (evil-range (car bounds) (cdr bounds) 'line)))
+      (evil-range (car bounds) (cdr bounds) 'inclusive)))
 
   (evil-define-text-object my/outer-shell-command (count &optional _beg _end _type)
     "As `my/inner-shell-command', plus leading comments and trailing blank lines."
@@ -204,22 +192,9 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
                     (point))
                   'line)))
 
-  (evil-define-text-object my/inner-src-block (count &optional _beg _end _type)
-    "The body of the enclosing org src block."
-    (let ((bounds (or (my/org-src-block-body-bounds)
-                      (user-error "Not inside a src block"))))
-      (evil-range (car bounds) (cdr bounds) 'line)))
-
-  (evil-define-text-object my/outer-src-block (count &optional _beg _end _type)
-    "The enclosing org src block, #+begin_src/#+end_src lines included."
-    (let ((el (or (org-element-lineage (org-element-at-point) '(src-block) t)
-                  (user-error "Not inside a src block"))))
-      (evil-range (org-element-property :begin el)
-                  (org-element-property :end el)
-                  'line)))
-
-  (map! :textobj "r" #'my/inner-shell-command #'my/outer-shell-command
-        :textobj "e" #'my/inner-src-block #'my/outer-src-block))
+  ;; `z' is free: doom uses a B c f g i j k q u x, evil w W s p b B o t,
+  ;; evil-org e E r R, and evil-textobj-line/syntax take l and h.
+  (map! :textobj "z" #'my/inner-shell-command #'my/outer-shell-command))
 
 
 ;; Disable ESC menu fully in evil-emacs-mode
