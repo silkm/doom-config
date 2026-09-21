@@ -119,6 +119,22 @@
               vc-ignore-dir-regexp
               tramp-file-name-regexp))
 
+
+;; Keep the vc gutter (diff-hl) live while typing, instead of only refreshing on
+;; save. Doom's :ui vc-gutter module deliberately skips `diff-hl-flydiff-mode' on
+;; macOS (see modules/ui/vc-gutter/config.el) because of doomemacs/doomemacs#8554:
+;; the diff/git subprocesses each update spawns used to choke process management
+;; there. Without flydiff, `diff-hl-overlay-modified' deletes each hunk overlay as
+;; soon as you edit inside it, and diff-hl only ever diffs the file on disk, so the
+;; fringe bars vanish on the first keystroke and don't return until a save.
+;;
+;; CONFIG AUDIT: re-check whether this override is still needed. It's only safe
+;; because Emacs 31 gives diff-hl native async updates (`diff-hl-update-async' is
+;; t above emacs 30). If Doom drops the macOS special-case upstream, or #8554 is
+;; closed, delete this. If Emacs starts stuttering while typing, either raise
+;; `diff-hl-flydiff-delay' or drop back to update-on-save by removing this hook.
+(add-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
+
 ;; Function to adjust transparency
 (defun my-set-frame-transparency ()
   "Prompt for alpha value and set frame transparency."
