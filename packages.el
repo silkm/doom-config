@@ -58,6 +58,7 @@
 (package! gptel :recipe (:nonrecursive t))
 (package! claude-code-ide
   :recipe (:host github :repo "manzaltu/claude-code-ide.el"))
+(package! ghostel)
 (package! dape)
 (package! breadcrumb)
 (package! evil-textobj-line)

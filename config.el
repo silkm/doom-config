@@ -1275,7 +1275,8 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
 (use-package! claude-code-ide
   :config
   ;; Only share text I've explicitly selected; visiting a file reports nothing.
-  (setq claude-code-ide-share-opened-file nil
+  (setq claude-code-ide-terminal-backend 'ghostel
+        claude-code-ide-share-opened-file nil
         claude-code-ide-enable-execute-code nil  ; no arbitrary elisp eval tool
         claude-code-ide-enable-mcp-server nil    ; no extra emacs-tools server
         claude-code-ide-mcp-allowed-tools nil))  ; don't pass --allowedTools
