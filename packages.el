@@ -56,6 +56,8 @@
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
 (package! gptel :recipe (:nonrecursive t))
+(package! claude-code-ide
+  :recipe (:host github :repo "manzaltu/claude-code-ide.el"))
 (package! dape)
 (package! breadcrumb)
 (package! evil-textobj-line)
