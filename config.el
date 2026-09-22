@@ -290,9 +290,10 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
       :prefix "l"
       "t" #'my-set-frame-transparency
       "s" #'my-update-silk-ssh-config
-      "c" #'my/vterm-colab
+      "c" #'my/ghostel-colab
       "d" #'my/dired-colab
-      "p" #'my/dedent-block-at-point)
+      "p" #'my/dedent-block-at-point
+      "a" #'claude-code-ide-menu)
 
 ;; Bind flymake-goto-prev-error to previous error keybinds
 (map! :map esc-map
@@ -440,6 +441,21 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
   (add-hook 'vterm-mode-hook
             (lambda ()
               (setq-local ring-bell-function 'ignore))))
+
+
+(after! ghostel
+  (setq ghostel-shell (list shell-file-name "-l"))
+  (evil-set-initial-state 'ghostel-mode 'emacs)
+  (add-hook 'ghostel-mode-hook
+            (lambda ()
+              (setq-local ring-bell-function 'ignore))))
+
+;; Keep the vterm popup behaviour Doom's :term module gave us
+(set-popup-rule! "^\\*ghostel" :size 0.35 :vslot -4 :select t :quit nil :ttl nil)
+
+(map! :leader
+      :desc "Toggle ghostel popup" "o t" #'ghostel-project
+      :desc "Open ghostel here"    "o T" #'ghostel)
 
 
 ;; To be avoided, exceptionally slow.
@@ -1274,10 +1290,11 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
 
 (use-package! claude-code-ide
   :config
-  ;; Only share text I've explicitly selected; visiting a file reports nothing.
-  (setq claude-code-ide-terminal-backend 'ghostel
-        claude-code-ide-share-opened-file nil
-        claude-code-ide-enable-execute-code nil  ; no arbitrary elisp eval tool
+  ;; share-opened-file and enable-execute-code both default to t.
+  ;; ponytail: fixed width. Swap for a :before advice recomputing
+  ;; (/ (frame-width) 2) if you move between differently-sized monitors.
+  (setq claude-code-ide-window-width 55
+        claude-code-ide-terminal-backend 'ghostel
         claude-code-ide-enable-mcp-server nil    ; no extra emacs-tools server
         claude-code-ide-mcp-allowed-tools nil))  ; don't pass --allowedTools
 
@@ -1294,16 +1311,15 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
   (find-file "/ssh:msilk-colab.australia-southeast1-b.notebooks-314505|docker:colab-kernel:/"))
 
 
-(defun my/vterm-colab ()
-  "Open a local vterm popup and SSH into the colab-kernel docker container.
+(defun my/ghostel-colab ()
+  "Open a local ghostel terminal and SSH into the colab-kernel docker container.
 Forces a local `default-directory' so the terminal isn't started under a
 tramp/remote path inherited from the current buffer."
   (interactive)
   (let ((default-directory (expand-file-name "~/")))
-    (+vterm/toggle nil)
-    (vterm-send-string
-     "gcloud compute ssh msilk-colab --zone=australia-southeast1-b -- -t docker exec -it -e TERM=\"$TERM\" colab-kernel /bin/bash -l")
-    (vterm-send-return)))
+    (ghostel)
+    (ghostel-send-string
+     "gcloud compute ssh msilk-colab --zone=australia-southeast1-b -- -t docker exec -it -e TERM=\"$TERM\" colab-kernel /bin/bash -l\n")))
 
 
 (defun my-update-silk-ssh-config ()
