@@ -1302,7 +1302,20 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
   (face-remap-add-relative 'diff-added
                            `(:foreground ,(doom-color 'fg) :background ,(doom-blend 'green 'bg 0.2)))
   (face-remap-add-relative 'diff-removed
-                           `(:foreground ,(doom-color 'fg) :background ,(doom-blend 'red 'bg 0.2))))
+                           `(:foreground ,(doom-color 'fg) :background ,(doom-blend 'red 'bg 0.2)))
+  ;; Keep one font. `bold' against an Inconsolata Light default swaps in
+  ;; Inconsolata Bold, which is the jarring bit -- headers, list bullets and
+  ;; inline code are all colour-coded anyway, so weight buys no hierarchy here.
+  ;; Remapping `bold'/`bold-italic' catches everything inheriting them
+  ;; (markdown-header-face, magit-section-heading, pr-review-state-face, ...).
+  (let ((w (face-attribute 'default :weight)))
+    (face-remap-add-relative 'bold :weight w)
+    (face-remap-add-relative 'bold-italic :weight w))
+  ;; And one size. These two are the only faces that scale; `set-base' rather
+  ;; than `add-relative' because a float :height composes multiplicatively.
+  (face-remap-set-base 'pr-review-reaction-face '(:box t))
+  (face-remap-set-base 'pr-review-in-diff-pending-end-face
+                       '(:overline t :extend t :inherit italic)))
 
 (defun my/pr-review-next-draft (&optional backward)
   "Go to the next drafted review comment, or the previous one if BACKWARD.
