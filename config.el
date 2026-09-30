@@ -293,7 +293,8 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
       "c" #'my/ghostel-colab
       "d" #'my/dired-colab
       "p" #'my/dedent-block-at-point
-      "a" #'claude-code-ide-menu)
+      "a" #'claude-code-ide-menu
+      "r" #'pr-review)
 
 ;; Bind flymake-goto-prev-error to previous error keybinds
 (map! :map esc-map
@@ -1288,6 +1289,51 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
   (setq gptel-default-mode 'org-mode))
 
 
+;; Reuse forge's ~/.authinfo token (machine api.github.com login silkm^forge)
+;; instead of provisioning a second one for `emacs-pr-review'.
+(setq pr-review-ghub-auth-name 'forge)
+
+;; The PR diff arrives with no local source files, so `diff-syntax-fontify' bails
+;; and every changed line is just saturated green/red foreground -- unreadable in
+;; bulk. Invert it: normal fg, tinted bg, coloured +/- indicators left alone.
+;; Buffer-local remap, so magit and diff-mode elsewhere keep their own look.
+(add-hook! 'pr-review-mode-hook
+  ;; ponytail: 0.2 blend. Nudge up if the tint is too faint on your monitor.
+  (face-remap-add-relative 'diff-added
+                           `(:foreground ,(doom-color 'fg) :background ,(doom-blend 'green 'bg 0.2)))
+  (face-remap-add-relative 'diff-removed
+                           `(:foreground ,(doom-color 'fg) :background ,(doom-blend 'red 'bg 0.2))))
+
+(defun my/pr-review--buffer ()
+  "Return the most recently used `pr-review-mode' buffer."
+  ;; ponytail: most-recent wins. Add a url argument if you ever review two PRs at once.
+  (or (seq-find (lambda (b) (eq 'pr-review-mode (buffer-local-value 'major-mode b)))
+                (buffer-list))
+      (error "No pr-review buffer open; call pr_review_open first")))
+
+(defun my/pr-review-mcp-content ()
+  "Return the rendered PR (title, description, diff, review threads) as text."
+  (with-current-buffer (my/pr-review--buffer)
+    (buffer-substring-no-properties (point-min) (point-max))))
+
+(defun my/pr-review-mcp-open (url)
+  "Open URL with `pr-review' and return the rendered PR as text."
+  (pr-review url)
+  (my/pr-review-mcp-content))
+
+(defun my/pr-review-mcp-add-comment (path line body &optional side)
+  "Queue a pending review comment with BODY on PATH at LINE.
+SIDE is \"RIGHT\" (the new file) unless given as \"LEFT\"."
+  (with-current-buffer (my/pr-review--buffer)
+    (let ((side (or side "RIGHT")))
+      (unless (save-excursion (pr-review--goto-diff-line path side line))
+        (error "%s:%s (%s) is not a line in this diff" path line side))
+      (pr-review--add-pending-review-thread-exit-callback
+       (current-buffer) `((path . ,path) (line . ,line) (side . ,side)) body)
+      (format "Queued. %d pending comment(s); the human submits with pr-review-submit-review."
+              (length pr-review--pending-review-threads)))))
+
+
 (use-package! claude-code-ide
   :config
   ;; share-opened-file and enable-execute-code both default to t.
@@ -1295,8 +1341,37 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
   ;; (/ (frame-width) 2) if you move between differently-sized monitors.
   (setq claude-code-ide-window-width 55
         claude-code-ide-terminal-backend 'ghostel
-        claude-code-ide-enable-mcp-server nil    ; no extra emacs-tools server
-        claude-code-ide-mcp-allowed-tools nil))  ; don't pass --allowedTools
+        claude-code-ide-enable-mcp-server t      ; needed for the MCP tools below
+        claude-code-ide-mcp-allowed-tools nil)   ; don't pass --allowedTools
+
+  ;; xref / imenu / treesit / project-info tools.
+  (claude-code-ide-emacs-tools-setup)
+
+  (claude-code-ide-make-tool
+   :function #'my/pr-review-mcp-open
+   :name "pr_review_open"
+   :description "Open a GitHub/GitLab pull request URL in Emacs pr-review and return the whole PR as text: title, description, commits, full diff and existing review threads."
+   :args '((:name "url" :type string
+            :description "Pull request / merge request URL")))
+
+  (claude-code-ide-make-tool
+   :function #'my/pr-review-mcp-content
+   :name "pr_review_content"
+   :description "Return the pull request currently open in Emacs pr-review as text: title, description, full diff, existing review threads and any pending comments."
+   :args nil)
+
+  (claude-code-ide-make-tool
+   :function #'my/pr-review-mcp-add-comment
+   :name "pr_review_add_comment"
+   :description "Queue a pending review comment on a line of the PR open in Emacs pr-review. Comments are only drafted -- the human reviews them and submits the review themselves. Line numbers must be lines present in the diff."
+   :args '((:name "path" :type string
+            :description "File path as shown in the diff")
+           (:name "line" :type integer
+            :description "Line number in the diff, on the given side")
+           (:name "body" :type string
+            :description "Comment text (markdown; a ```suggestion block works)")
+           (:name "side" :type string :optional t :enum ["RIGHT" "LEFT"]
+            :description "RIGHT = new file (default), LEFT = old file"))))
 
 
 (after! plantuml-mode
