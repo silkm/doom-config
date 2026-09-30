@@ -1304,6 +1304,27 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
   (face-remap-add-relative 'diff-removed
                            `(:foreground ,(doom-color 'fg) :background ,(doom-blend 'red 'bg 0.2))))
 
+(defun my/pr-review-next-draft (&optional backward)
+  "Go to the next drafted review comment, or the previous one if BACKWARD.
+Wraps around at the end of the buffer."
+  (interactive "P")
+  (let* ((prop 'pr-review-pending-review-thread)
+         (search (if backward #'text-property-search-backward
+                   #'text-property-search-forward))
+         (m (or (funcall search prop nil nil t)
+                ;; wrap; not-current is nil here so a lone draft is still found
+                (progn (goto-char (if backward (point-max) (point-min)))
+                       (funcall search prop)))))
+    (if m
+        (goto-char (prop-match-beginning m))
+      (message "No drafted comments"))))
+
+;; g l / g q shadow `evil-lion-left' and `evil-fill-and-move', both editing
+;; operators and so inert in this read-only buffer.
+(map! :map pr-review-mode-map
+      :nm "g l" #'my/pr-review-next-draft
+      :nm "g q" (cmd! (my/pr-review-next-draft t)))
+
 (defun my/pr-review--buffer ()
   "Return the most recently used `pr-review-mode' buffer."
   ;; ponytail: most-recent wins. Add a url argument if you ever review two PRs at once.
