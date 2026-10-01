@@ -1346,9 +1346,26 @@ Wraps around at the end of the buffer."
       (error "No pr-review buffer open; call pr_review_open first")))
 
 (defun my/pr-review-mcp-content ()
-  "Return the rendered PR (title, description, diff, review threads) as text."
+  "Return the rendered PR (title, description, diff, review threads) as text.
+Diff lines are prefixed \"R<n> \" / \"L<n> \" -- the side and line number
+`my/pr-review-mcp-add-comment' wants. pr-review keeps those numbers in text
+properties only, so without this the diff reaches Claude with nothing but
+@@ hunk headers to count from."
   (with-current-buffer (my/pr-review--buffer)
-    (buffer-substring-no-properties (point-min) (point-max))))
+    (save-excursion
+      (goto-char (point-min))
+      (let (out)
+        (while (not (eobp))
+          (let ((info (pr-review--get-diff-line-info (point))))
+            (push (concat (when info
+                            (format "%s%d " (if (equal (car info) "LEFT") "L" "R")
+                                    (cddr info)))
+                          (buffer-substring-no-properties
+                           (line-beginning-position) (line-end-position))
+                          "\n")
+                  out))
+          (forward-line 1))
+        (apply #'concat (nreverse out))))))
 
 (defun my/pr-review-mcp-open (url)
   "Open URL with `pr-review' and return the rendered PR as text."
@@ -1384,14 +1401,14 @@ SIDE is \"RIGHT\" (the new file) unless given as \"LEFT\"."
   (claude-code-ide-make-tool
    :function #'my/pr-review-mcp-open
    :name "pr_review_open"
-   :description "Open a GitHub/GitLab pull request URL in Emacs pr-review and return the whole PR as text: title, description, commits, full diff and existing review threads."
+   :description "Open a GitHub/GitLab pull request URL in Emacs pr-review and return the whole PR as text: title, description, commits, full diff and existing review threads. Diff lines are prefixed R<n> or L<n>: that number and side are exactly what pr_review_add_comment's line and side arguments take."
    :args '((:name "url" :type string
             :description "Pull request / merge request URL")))
 
   (claude-code-ide-make-tool
    :function #'my/pr-review-mcp-content
    :name "pr_review_content"
-   :description "Return the pull request currently open in Emacs pr-review as text: title, description, full diff, existing review threads and any pending comments."
+   :description "Return the pull request currently open in Emacs pr-review as text: title, description, full diff, existing review threads and any pending comments. Diff lines are prefixed R<n> or L<n>: that number and side are exactly what pr_review_add_comment's line and side arguments take."
    :args nil)
 
   (claude-code-ide-make-tool
