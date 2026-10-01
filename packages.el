@@ -68,3 +68,13 @@
 (package! flymake-ruff)
 (package! exec-path-from-shell)
 (package! catppuccin-theme)
+;; Hard dependency of `claude-code-ide' (its Package-Requires), unvendored --
+;; it's the transport for the MCP tools server, so without it
+;; `claude-code-ide-enable-mcp-server' is dead config and the custom tools in
+;; config.el never reach Claude. Declared here only to force :local-repo: melpa
+;; maps both `web-server' (eschulte) and `simple-httpd' (skeeto) to a repo dir
+;; named "emacs-web-server", simple-httpd already owns it, and straight's
+;; automatic dependency resolution silently built simple-httpd as web-server.
+(package! web-server
+  :recipe (:host github :repo "eschulte/emacs-web-server"
+           :local-repo "eschulte-web-server"))
