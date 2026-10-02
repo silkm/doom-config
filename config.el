@@ -1235,14 +1235,14 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
                '(haskell-ts-mode . ("haskell-language-server-wrapper" "--lsp")))
   (setq-default eglot-workspace-configuration
                 '(:python.analysis ( :typeCheckingMode "standard"
-                                    :autoImportCompletions t
-                                    :diagnosticMode "openFilesOnly"
-                                    :diagnosticSeverityOverrides (:reportUnusedImport "none"
-                                                                  :reportUnusedVariable "none")
-                                    :inlayHints (:variableTypes :json-false
-                                                 :functionReturnTypes :json-false
-                                                 :callArgumentNames :json-false
-                                                 :genericTypes :json-false))))
+                                                       :autoImportCompletions t
+                                                       :diagnosticMode "openFilesOnly"
+                                                       :diagnosticSeverityOverrides (:reportUnusedImport "none"
+                                                                                     :reportUnusedVariable "none")
+                                                       :inlayHints (:variableTypes :json-false
+                                                                    :functionReturnTypes :json-false
+                                                                    :callArgumentNames :json-false
+                                                                    :genericTypes :json-false))))
   (add-hook 'eglot-managed-mode-hook #'flymake-ruff-load))
 ;; (setq-default eglot-workspace-configuration
 ;;               '(:pylsp (:plugins (:jedi_completion (:include_params t :fuzzy t) ;; [X] autocompletion
