@@ -294,7 +294,7 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
       "d" #'my/dired-colab
       "p" #'my/dedent-block-at-point
       "a" #'claude-code-ide-menu
-      "r" #'pr-review)
+      "r" #'my/pr-review-open-pr)
 
 ;; Bind flymake-goto-prev-error to previous error keybinds
 (map! :map esc-map
@@ -1293,29 +1293,49 @@ With WITH-COMMENTS, extend BEG back over preceding comment lines."
 ;; instead of provisioning a second one for `emacs-pr-review'.
 (setq pr-review-ghub-auth-name 'forge)
 
-;; The PR diff arrives with no local source files, so `diff-syntax-fontify' bails
-;; and every changed line is just saturated green/red foreground -- unreadable in
-;; bulk. Invert it: normal fg, tinted bg, coloured +/- indicators left alone.
-;; Buffer-local remap, so magit and diff-mode elsewhere keep their own look.
+(defun my/pr-review-open-pr ()
+  "List PRs to review, defaulting the search to the current repo.
+RET on a row opens it."
+  (interactive)
+  ;; `pr-review-search-default-query' is a defcustom in this lazily-autoloaded
+  ;; file; without the require, lexical-binding makes the `let' below invisible
+  ;; to `pr-review--search-read-query'.
+  (require 'pr-review-search)
+  ;; `pr-review-search', not `pr-review-search-open': the latter's
+  ;; `(apply #'pr-review-open selected-value)' passes (owner name number) and
+  ;; omits the leading host arg, so it dies with "Wrong number of arguments".
+  (let ((pr-review-search-default-query
+         (if-let* ((repo (ignore-errors (forge-get-repository :stub))))
+             (format "is:pr is:open repo:%s" (oref repo slug))
+           "is:pr is:open review-requested:@me")))
+    (call-interactively #'pr-review-search)))
+
+;; Diff colours: back to the theme's green/red foreground for whole lines (the
+;; tinted-background experiment is in git history), but the word-level refine
+;; faces still get a background here -- buffer-local remap, so magit and
+;; diff-mode elsewhere keep their own look.
 (add-hook! 'pr-review-mode-hook
-  ;; ponytail: 0.2 blend. Nudge up if the tint is too faint on your monitor.
-  (face-remap-add-relative 'diff-added
-                           `(:foreground ,(doom-color 'fg) :background ,(doom-blend 'green 'bg 0.2)))
-  (face-remap-add-relative 'diff-removed
-                           `(:foreground ,(doom-color 'fg) :background ,(doom-blend 'red 'bg 0.2)))
-  ;; Keep one font. `bold' against an Inconsolata Light default swaps in
-  ;; Inconsolata Bold, which is the jarring bit -- headers, list bullets and
-  ;; inline code are all colour-coded anyway, so weight buys no hierarchy here.
-  ;; Remapping `bold'/`bold-italic' catches everything inheriting them
-  ;; (markdown-header-face, magit-section-heading, pr-review-state-face, ...).
-  (let ((w (face-attribute 'default :weight)))
-    (face-remap-add-relative 'bold :weight w)
-    (face-remap-add-relative 'bold-italic :weight w))
-  ;; And one size. These two are the only faces that scale; `set-base' rather
-  ;; than `add-relative' because a float :height composes multiplicatively.
-  (face-remap-set-base 'pr-review-reaction-face '(:box t))
-  (face-remap-set-base 'pr-review-in-diff-pending-end-face
-                       '(:overline t :extend t :inherit italic)))
+           ;; doom defines these as `:inherit diff-added :inverse-video t', and the
+           ;; inversion paints the changed words in the *foreground* colour -- near-white
+           ;; blocks. Tint of the same hue instead; `set-base' to drop the inherited
+           ;; inverse-video rather than fight it.
+           (face-remap-set-base 'diff-refine-added
+                                `(:foreground ,(doom-color 'fg) :background ,(doom-blend 'green 'bg 0.45)))
+           (face-remap-set-base 'diff-refine-removed
+                                `(:foreground ,(doom-color 'fg) :background ,(doom-blend 'red 'bg 0.45)))
+           ;; Keep one font. `bold' against an Inconsolata Light default swaps in
+           ;; Inconsolata Bold, which is the jarring bit -- headers, list bullets and
+           ;; inline code are all colour-coded anyway, so weight buys no hierarchy here.
+           ;; Remapping `bold'/`bold-italic' catches everything inheriting them
+           ;; (markdown-header-face, magit-section-heading, pr-review-state-face, ...).
+           (let ((w (face-attribute 'default :weight)))
+             (face-remap-add-relative 'bold :weight w)
+             (face-remap-add-relative 'bold-italic :weight w))
+           ;; And one size. These two are the only faces that scale; `set-base' rather
+           ;; than `add-relative' because a float :height composes multiplicatively.
+           (face-remap-set-base 'pr-review-reaction-face '(:box t))
+           (face-remap-set-base 'pr-review-in-diff-pending-end-face
+                                '(:overline t :extend t :inherit italic)))
 
 (defun my/pr-review-next-draft (&optional backward)
   "Go to the next drafted review comment, or the previous one if BACKWARD.
@@ -1384,9 +1404,43 @@ SIDE is \"RIGHT\" (the new file) unless given as \"LEFT\"."
       (format "Queued. %d pending comment(s); the human submits with pr-review-submit-review."
               (length pr-review--pending-review-threads)))))
 
+(defun my/forge-mcp-draft-pullreq (directory title body &optional base)
+  "Open a forge new-pullreq buffer for DIRECTORY's current branch, filled
+with TITLE and BODY. BASE defaults to the repo's default branch. Nothing is
+submitted; the human edits and submits from the buffer."
+  (let* ((default-directory (file-name-as-directory (expand-file-name directory)))
+         (repo (forge-get-repository :tracked))
+         (branch (or (magit-get-current-branch) (error "Detached HEAD in %s" directory)))
+         ;; @{push} follows git's rules, so an upstream-only branch (git push -u) works.
+         (source (or (magit-get-@{push}-branch branch)
+                     (error "%s has no pushed branch; push it first" branch)))
+         (target (concat (oref repo remote) "/" (or base (oref repo default-branch))))
+         ;; forge--post-expand-file-name is internal; it's how forge names the draft file.
+         (file (forge--post-expand-file-name "new-pullreq" repo)))
+    (unless (magit-rev-eq branch source)
+      (error "%s differs from %s; push first" branch source))
+    ;; forge would otherwise block on a resume/discard prompt in the minibuffer.
+    (when (and (file-exists-p file) (> (file-attribute-size (file-attributes file)) 0))
+      (error "A new-pullreq draft already exists at %s; finish or delete it" file))
+    (forge-create-pullreq source target)
+    (with-current-buffer (get-file-buffer file)
+      (erase-buffer)
+      (insert "# " title "\n\n" body)
+      (goto-char (point-min)))
+    (format "Drafted %s -> %s in the new-pullreq buffer. The human submits with C-c C-c."
+            source target)))
+
 
 (use-package! claude-code-ide
   :config
+  ;; Emacs started from inside a Claude Code session inherits that session's
+  ;; env. CLAUDE_CODE_CHILD_SESSION=1 then leaks into every session we spawn,
+  ;; which turns off transcript saving (no /resume, no --continue).
+  (dolist (v '("CLAUDE_CODE_CHILD_SESSION" "CLAUDECODE" "CLAUDE_CODE_ENTRYPOINT"
+               "CLAUDE_PID" "CLAUDE_CODE_SESSION_ID" "CLAUDE_CODE_SSE_PORT"
+               "CLAUDE_CODE_MESSAGING_SOCKET" "CLAUDE_CODE_MESSAGING_TOKEN"))
+    (setenv v nil))
+
   ;; share-opened-file and enable-execute-code both default to t.
   ;; ponytail: fixed width. Swap for a :before advice recomputing
   ;; (/ (frame-width) 2) if you move between differently-sized monitors.
@@ -1422,7 +1476,18 @@ SIDE is \"RIGHT\" (the new file) unless given as \"LEFT\"."
            (:name "body" :type string
             :description "Comment text (markdown; a ```suggestion block works)")
            (:name "side" :type string :optional t :enum ["RIGHT" "LEFT"]
-            :description "RIGHT = new file (default), LEFT = old file"))))
+            :description "RIGHT = new file (default), LEFT = old file")))
+
+  (claude-code-ide-make-tool
+   :function #'my/forge-mcp-draft-pullreq
+   :name "forge_draft_pullreq"
+   :description "Open a draft pull request in an Emacs forge buffer for the current branch of a git repo, pre-filled with a title and body. Nothing is submitted -- the human edits and submits it. The branch must already be pushed. If the repo has a PR template (e.g. .github/pull_request_template.md), follow it in the body."
+   :args '((:name "directory" :type string
+            :description "Absolute path to the repository")
+           (:name "title" :type string :description "PR title")
+           (:name "body" :type string :description "PR description (markdown)")
+           (:name "base" :type string :optional t
+            :description "Target branch name without remote, e.g. \"main\". Defaults to the repo's default branch."))))
 
 
 (after! plantuml-mode
